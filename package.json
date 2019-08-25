@@ -1,0 +1,78 @@
+{
+	"name": "kstm32",
+	"displayName": "暮光小猿STM32小工具",
+	"description": "STM32小工具 - 暮光小猿wzt",
+	"keywords": ["stm32", "kstm32", "arm", "cortex", "gcc", "暮光小猿wzt"],
+	"version": "0.0.1",
+	"preview": true,
+	"engines": {
+		"vscode": "^1.37.0"
+	},
+	"extensionDependencies": [
+		"ms-vscode.cpptools"
+	],
+	"activationEvents": ["*"],
+	"categories": [
+		"Snippets",
+		"Other"
+	],
+	"main": "./extension.js",
+	"contributes": {
+		"commands": [{
+            "command": "kstm32.init",
+			"title": "KSTM32: init"
+		}],
+		"configuration":[
+			{
+				"title": "暮光小猿STM32小工具",
+				"properties": {
+					"kstm32.includePath": {
+						"type": "array",
+						"description": "工程Include路径 (工作区单独配置)"
+					},
+					"kstm32.gcc": {
+						"type": "string",
+						"description": "gcc的路径 (留空使用系统环境变量)"
+					},
+					"kstm32.libs.STM32f10xStdPeriph": {
+						"type": "string",
+						"description": "STM32F10x 标准外设库路径 (包含CMSIS和STM32F10x_StdPeriph_Driver目录)",
+						"default": "D:\\Things\\MCU\\STM32各种库\\STM32F10x_StdPeriph_Lib_V3.5.0\\Libraries"
+					},
+					"kstm32.libs.STM32f4xxStdPeriph": {
+						"type": "string",
+						"description": "STM32F4xx 标准外设库路径 (包含CMSIS和STM32F4xx_StdPeriph_Driver目录)",
+						"default": "D:\\Things\\MCU\\STM32各种库\\STM32F4xx_DSP_StdPeriph_Lib_V1.8.0\\Libraries"
+					}
+				}
+			}
+		],
+		"viewsContainers": {
+			"activitybar": [{
+				"id": "kstm32",
+				"title": "暮光小猿STM32小工具",
+				"icon": "src/stm32.svg"
+			}]
+		},
+		"views": {
+			"kstm32": [{
+				"id": "common",
+				"name": "通用设置"
+			}]
+		}
+	},
+	"scripts": {
+		"test": "node ./test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/glob": "^7.1.1",
+		"@types/mocha": "^5.2.6",
+		"@types/node": "^10.12.21",
+		"@types/vscode": "^1.37.0",
+		"eslint": "^5.13.0",
+		"glob": "^7.1.4",
+		"mocha": "^6.1.4",
+		"typescript": "^3.3.1",
+		"vscode-test": "^1.0.0-next.0"
+	}
+}
