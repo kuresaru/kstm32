@@ -31,7 +31,7 @@ ifeq ($(DEBUG), 1)\n\
 CFLAGS += -g -gdwarf-2\n\
 endif\n\
 CFLAGS += -MMD -MP -MF\"$(@:%.o=%.d)\"\n\
-LDSCRIPT = {kstm32:ldscript}\n\
+LDSCRIPT = ldscript.ld\n\
 LIBS = -lc -lm -lnosys \n\
 LIBDIR = \n\
 LDFLAGS = $(MCU) -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections\n\

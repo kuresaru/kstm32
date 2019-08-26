@@ -1,4 +1,5 @@
 {
+	"publisher": "kuresaru",
 	"name": "kstm32",
 	"displayName": "暮光小猿STM32小工具",
 	"description": "STM32小工具 - 暮光小猿wzt",
@@ -19,68 +20,115 @@
 	"main": "./extension.js",
 	"contributes": {
 		"commands": [{
-            "command": "kstm32.configure",
-			"title": "KSTM32: configure"
-		}],
-		"configuration":[
+				"command": "kstm32.configure",
+				"title": "KSTM32: configure"
+			},
 			{
-				"title": "暮光小猿STM32小工具",
-				"properties": {
-					"kstm32.gcc": {
-						"type": "string",
-						"description": "gcc的路径 (留空使用系统环境变量)"
-					},
-					"kstm32.gccPrefix": {
-						"type": "string",
-						"description": "gcc指令前缀",
-						"default": "arm-none-eabi-"
-					},
-					"kstm32.libs.STM32f10xStdPeriph": {
-						"type": "string",
-						"description": "STM32F10x 标准外设库路径 (包含CMSIS和STM32F10x_StdPeriph_Driver目录)",
-						"default": "D:\\Things\\MCU\\STM32各种库\\STM32F10x_StdPeriph_Lib_V3.5.0\\Libraries"
-					},
-					"kstm32.libs.STM32f4xxStdPeriph": {
-						"type": "string",
-						"description": "STM32F4xx 标准外设库路径 (包含CMSIS和STM32F4xx_StdPeriph_Driver目录)",
-						"default": "D:\\Things\\MCU\\STM32各种库\\STM32F4xx_DSP_StdPeriph_Lib_V1.8.0\\Libraries"
-					},
-					"kstm32.projectName": {
-						"type": "string",
-						"description": "项目名称",
-						"default": "KSTM32_Project"
-					},
-					"kstm32.csources": {
-						"type": "array",
-						"description": "C Sources"
-					},
-					"kstm32.cincludes": {
-						"type": "array",
-						"description": "C Includes"
-					},
-					"kstm32.cdefs": {
-						"type": "array",
-						"description": "C Defines"
-					},
-					"kstm32.asmSources": {
-						"type": "array",
-						"description": "ASM Sources"
-					}
-				}
+				"command": "kstm32.create",
+				"title": "KSTM32: create project directory"
+			},
+			{
+				"command": "kstm32.cincludes.add",
+				"title": "KSTM32: add c Include",
+				"icon": "src/svg/add.svg"
+			},
+			{
+				"command": "kstm32.cdefs.add",
+				"title": "KSTM32: add c define",
+				"icon": "src/svg/add.svg"
+			},
+			{
+				"command": "kstm32.csources.add",
+				"title": "KSTM32: add c source",
+				"icon": "src/svg/add.svg"
 			}
 		],
+		"configuration": [{
+			"title": "暮光小猿STM32小工具",
+			"properties": {
+				"kstm32.gcc": {
+					"type": "string",
+					"description": "gcc的路径 (留空使用系统环境变量)"
+				},
+				"kstm32.gccPrefix": {
+					"type": "string",
+					"description": "gcc指令前缀",
+					"default": "arm-none-eabi-"
+				},
+				"kstm32.libs.STM32f10xStdPeriph": {
+					"type": "string",
+					"description": "STM32F10x 标准外设库路径 (包含CMSIS和STM32F10x_StdPeriph_Driver目录)",
+					"default": "D:\\Things\\MCU\\STM32各种库\\STM32F10x_StdPeriph_Lib_V3.5.0\\Libraries"
+				},
+				"kstm32.libs.STM32f4xxStdPeriph": {
+					"type": "string",
+					"description": "STM32F4xx 标准外设库路径 (包含CMSIS和STM32F4xx_StdPeriph_Driver目录)",
+					"default": "D:\\Things\\MCU\\STM32各种库\\STM32F4xx_DSP_StdPeriph_Lib_V1.8.0\\Libraries"
+				},
+				"kstm32.projectName": {
+					"type": "string",
+					"description": "项目名称",
+					"default": "KSTM32_Project"
+				},
+				"kstm32.csources": {
+					"type": "array",
+					"description": "C Sources"
+				},
+				"kstm32.cincludes": {
+					"type": "array",
+					"description": "C Includes"
+				},
+				"kstm32.cdefs": {
+					"type": "array",
+					"description": "C Defines"
+				},
+				"kstm32.asmSources": {
+					"type": "array",
+					"description": "ASM Sources"
+				}
+			}
+		}],
 		"viewsContainers": {
 			"activitybar": [{
 				"id": "kstm32",
 				"title": "暮光小猿STM32小工具",
-				"icon": "src/stm32.svg"
+				"icon": "src/svg/stm32.svg"
 			}]
 		},
 		"views": {
 			"kstm32": [{
-				"id": "common",
-				"name": "通用设置"
-			}]
+					"id": "kstm32.csources",
+					"name": "C Sources"
+				},
+				{
+					"id": "kstm32.cincludes",
+					"name": "C Includes"
+				},
+				{
+					"id": "kstm32.cdefs",
+					"name": "C Defines"
+				}
+			]
+		},
+		"menus": {
+			"view/title": [
+				{
+					"command": "kstm32.csources.add",
+					"when": "view == kstm32.csources",
+					"group": "navigation"
+				},
+				{
+					"command": "kstm32.cincludes.add",
+					"when": "view == kstm32.cincludes",
+					"group": "navigation"
+				},
+				{
+					"command": "kstm32.cdefs.add",
+					"when": "view == kstm32.cdefs",
+					"group": "navigation"
+				}
+			],
+			"view/item/context": []
 		}
 	},
 	"scripts": {
