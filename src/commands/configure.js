@@ -5,7 +5,6 @@ const vscode = require('vscode');
  */
 function register(context) {
     context.subscriptions.push(vscode.commands.registerCommand('kstm32.configure', function () {
-        console.log('初始化新的工程');
         let workspaceFolders = vscode.workspace.workspaceFolders;
         if (workspaceFolders.length == 1) {
             configure(workspaceFolders[0].uri);

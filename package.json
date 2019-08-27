@@ -3,7 +3,14 @@
 	"name": "kstm32",
 	"displayName": "暮光小猿STM32小工具",
 	"description": "STM32小工具 - 暮光小猿wzt",
-	"keywords": ["stm32", "kstm32", "arm", "cortex", "gcc", "暮光小猿wzt"],
+	"keywords": [
+		"stm32",
+		"kstm32",
+		"arm",
+		"cortex",
+		"gcc",
+		"暮光小猿wzt"
+	],
 	"version": "0.0.1",
 	"preview": true,
 	"engines": {
@@ -12,20 +19,23 @@
 	"extensionDependencies": [
 		"ms-vscode.cpptools"
 	],
-	"activationEvents": ["*"],
+	"activationEvents": [
+		"*"
+	],
 	"categories": [
 		"Snippets",
 		"Other"
 	],
 	"main": "./extension.js",
 	"contributes": {
-		"commands": [{
+		"commands": [
+			{
 				"command": "kstm32.configure",
 				"title": "KSTM32: configure"
 			},
 			{
 				"command": "kstm32.create",
-				"title": "KSTM32: create project directory"
+				"title": "KSTM32: create new project"
 			},
 			{
 				"command": "kstm32.cincludes.add",
@@ -41,62 +51,84 @@
 				"command": "kstm32.csources.add",
 				"title": "KSTM32: add c source",
 				"icon": "src/svg/add.svg"
+			},
+			{
+				"command": "kstm32.cincludes.delete",
+				"title": "删除"
+			},
+			{
+				"command": "kstm32.cdefs.delete",
+				"title": "删除"
+			},
+			{
+				"command": "kstm32.csources.delete",
+				"title": "删除"
 			}
 		],
-		"configuration": [{
-			"title": "暮光小猿STM32小工具",
-			"properties": {
-				"kstm32.gcc": {
-					"type": "string",
-					"description": "gcc的路径 (留空使用系统环境变量)"
-				},
-				"kstm32.gccPrefix": {
-					"type": "string",
-					"description": "gcc指令前缀",
-					"default": "arm-none-eabi-"
-				},
-				"kstm32.libs.STM32f10xStdPeriph": {
-					"type": "string",
-					"description": "STM32F10x 标准外设库路径 (包含CMSIS和STM32F10x_StdPeriph_Driver目录)",
-					"default": "D:\\Things\\MCU\\STM32各种库\\STM32F10x_StdPeriph_Lib_V3.5.0\\Libraries"
-				},
-				"kstm32.libs.STM32f4xxStdPeriph": {
-					"type": "string",
-					"description": "STM32F4xx 标准外设库路径 (包含CMSIS和STM32F4xx_StdPeriph_Driver目录)",
-					"default": "D:\\Things\\MCU\\STM32各种库\\STM32F4xx_DSP_StdPeriph_Lib_V1.8.0\\Libraries"
-				},
-				"kstm32.projectName": {
-					"type": "string",
-					"description": "项目名称",
-					"default": "KSTM32_Project"
-				},
-				"kstm32.csources": {
-					"type": "array",
-					"description": "C Sources"
-				},
-				"kstm32.cincludes": {
-					"type": "array",
-					"description": "C Includes"
-				},
-				"kstm32.cdefs": {
-					"type": "array",
-					"description": "C Defines"
-				},
-				"kstm32.asmSources": {
-					"type": "array",
-					"description": "ASM Sources"
+		"configuration": [
+			{
+				"title": "暮光小猿STM32小工具",
+				"properties": {
+					"kstm32.gcc": {
+						"type": "string",
+						"description": "gcc的路径 (留空使用系统环境变量)"
+					},
+					"kstm32.gccPrefix": {
+						"type": "string",
+						"description": "gcc指令前缀",
+						"default": "arm-none-eabi-"
+					},
+					"kstm32.libs.STM32f10xStdPeriph": {
+						"type": "string",
+						"description": "STM32F10x 标准外设库路径 (包含CMSIS和STM32F10x_StdPeriph_Driver目录)",
+						"default": "D:\\Things\\MCU\\STM32各种库\\STM32F10x_StdPeriph_Lib_V3.5.0\\Libraries"
+					},
+					"kstm32.libs.STM32f4xxStdPeriph": {
+						"type": "string",
+						"description": "STM32F4xx 标准外设库路径 (包含CMSIS和STM32F4xx_StdPeriph_Driver目录)",
+						"default": "D:\\Things\\MCU\\STM32各种库\\STM32F4xx_DSP_StdPeriph_Lib_V1.8.0\\Libraries"
+					},
+					"kstm32.libs.templates": {
+						"type": "string",
+						"description": "自定义工程模板",
+						"default": "D:\\Things\\MCU\\kstm32_template"
+					},
+					"kstm32.projectName": {
+						"type": "string",
+						"description": "项目名称",
+						"default": "KSTM32_Project"
+					},
+					"kstm32.csources": {
+						"type": "array",
+						"description": "C Sources"
+					},
+					"kstm32.cincludes": {
+						"type": "array",
+						"description": "C Includes"
+					},
+					"kstm32.cdefs": {
+						"type": "array",
+						"description": "C Defines"
+					},
+					"kstm32.asmSources": {
+						"type": "array",
+						"description": "ASM Sources"
+					}
 				}
 			}
-		}],
+		],
 		"viewsContainers": {
-			"activitybar": [{
-				"id": "kstm32",
-				"title": "暮光小猿STM32小工具",
-				"icon": "src/svg/stm32.svg"
-			}]
+			"activitybar": [
+				{
+					"id": "kstm32",
+					"title": "暮光小猿STM32小工具",
+					"icon": "src/svg/stm32.svg"
+				}
+			]
 		},
 		"views": {
-			"kstm32": [{
+			"kstm32": [
+				{
 					"id": "kstm32.csources",
 					"name": "C Sources"
 				},
@@ -128,7 +160,20 @@
 					"group": "navigation"
 				}
 			],
-			"view/item/context": []
+			"view/item/context": [
+				{
+					"command": "kstm32.csources.delete",
+					"when": "view == kstm32.csources"
+				},
+				{
+					"command": "kstm32.cincludes.delete",
+					"when": "view == kstm32.cincludes"
+				},
+				{
+					"command": "kstm32.cdefs.delete",
+					"when": "view == kstm32.cdefs"
+				}
+			]
 		}
 	},
 	"scripts": {
