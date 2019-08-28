@@ -48,25 +48,25 @@ function configure(projectUri) {
     switch (projectType) {
         case 'STM32F103C8Tx':
             libs = cfg.get('libs.STM32f10xStdPeriph');
-            asmSources += ' ' + (libs + '/CMSIS/CM3/DeviceSupport/ST/STM32F10x/startup/gcc_ride7/startup_stm32f10x_md.s').replace(/\\/g, '/');
-            csources += ' ' + (libs + '/CMSIS/CM3/CoreSupport/core_cm3.c').replace(/\\/g, '/');
+            asmSources += ' ' + (libs + '/CMSIS/CM3/DeviceSupport/ST/STM32F10x/startup/gcc_ride7/startup_stm32f10x_md.s');
+            csources += ' ' + (libs + '/CMSIS/CM3/CoreSupport/core_cm3.c');
             cincludes += ' -I' + vscode.Uri.file(libs + '/STM32F10x_StdPeriph_Driver/inc').fsPath;
             cincludes += ' -I' + vscode.Uri.file(libs + '/CMSIS/CM3/CoreSupport').fsPath;
             break;
         case 'STM32F103RCTx':
             libs = cfg.get('libs.STM32f10xStdPeriph');
-            asmSources += ' ' + (libs + '/CMSIS/CM3/DeviceSupport/ST/STM32F10x/startup/gcc_ride7/startup_stm32f10x_hd.s').replace(/\\/g, '/');
-            csources += ' ' + (libs + '/CMSIS/CM3/CoreSupport/core_cm3.c').replace(/\\/g, '/');
+            asmSources += ' ' + (libs + '/CMSIS/CM3/DeviceSupport/ST/STM32F10x/startup/gcc_ride7/startup_stm32f10x_hd.s');
+            csources += ' ' + (libs + '/CMSIS/CM3/CoreSupport/core_cm3.c');
             cincludes += ' -I' + vscode.Uri.file(libs + '/STM32F10x_StdPeriph_Driver/inc').fsPath;
             cincludes += ' -I' + vscode.Uri.file(libs + '/CMSIS/CM3/CoreSupport').fsPath;
             break;
     }
     makefileContent = makefileContent
         .replace(/\{kstm32\:target\}/g, projectName)
-        .replace(/\{kstm32\:csources\}/g, csources)
-        .replace(/\{kstm32\:cincludes\}/g, cincludes)
+        .replace(/\{kstm32\:csources\}/g, csources.replace(/\\/g, '/'))
+        .replace(/\{kstm32\:cincludes\}/g, cincludes.replace(/\\/g, '/'))
         .replace(/\{kstm32\:cdefs\}/g, cdefs)
-        .replace(/\{kstm32\:asmsources\}/g, asmSources)
+        .replace(/\{kstm32\:asmsources\}/g, asmSources.replace(/\\/g, '/'))
         .replace(/\{kstm32\:gccpath\}/g, '') //如果有配置了 上边已经替换了 这个匹配不到
         .replace(/\{kstm32\:prefix\}/g, prefix);
     vscode.workspace.fs.writeFile(makefileUri, new encoding.TextEncoder('utf-8').encode(makefileContent));
