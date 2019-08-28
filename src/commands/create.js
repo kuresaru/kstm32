@@ -1,6 +1,7 @@
 const vscode = require('vscode');
 const fs = require('fs');
 const vfs = vscode.workspace.fs;
+const configure = require('./configure');
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -26,6 +27,9 @@ function create(projectUri) {
         "STM32F103RCTx",
         "STM32F407ZGTx"
     ]).then(result => {
+        let cd = vscode.workspace.getConfiguration('C_Cpp.default');
+        cd.update('intelliSenseMode', 'gcc-x64', vscode.ConfigurationTarget.Workspace);
+        cd.update('cStandard', 'c11', vscode.ConfigurationTarget.Workspace);
         if (result) {
             //找模板目录
             let templatePath = vscode.Uri.file(vscode.workspace.getConfiguration('kstm32.libs').get('templates') + '/' + result).fsPath;
@@ -35,9 +39,7 @@ function create(projectUri) {
                     vscode.window.showErrorMessage(templatePath + '中无模板');
                     //如果不存在 创建源码目录(./src)
                     vfs.createDirectory(vscode.Uri.parse(projectUri + '/src'));
-                    let cfg = vscode.workspace.getConfiguration('kstm32');
-                    cfg.update("projectName", result, vscode.ConfigurationTarget.Workspace);
-                    cfg.update("projectType", result, vscode.ConfigurationTarget.Workspace);
+                    createConfig(result);
                     return;
                 }
                 //选择一个模板
@@ -49,9 +51,7 @@ function create(projectUri) {
                     //把模板内容复制到当前工程目录下
                     let srcPath = vscode.Uri.file(templatePath + '/' + name).fsPath;
                     copyDirectory(srcPath, projectUri.fsPath);
-                    let cfg = vscode.workspace.getConfiguration('kstm32');
-                    cfg.update("projectName", result, vscode.ConfigurationTarget.Workspace);
-                    cfg.update("projectType", result, vscode.ConfigurationTarget.Workspace);
+                    createConfig(result);
                     vscode.window.showInformationMessage('初始化完成');
                 });
             } else {
@@ -61,6 +61,27 @@ function create(projectUri) {
             vscode.window.showInformationMessage('操作被取消');
         }
     });
+}
+
+function createConfig(type) {
+    let cfg = vscode.workspace.getConfiguration('kstm32');
+    cfg.update("projectName", type, vscode.ConfigurationTarget.Workspace);
+    cfg.update("projectType", type, vscode.ConfigurationTarget.Workspace);
+    let cdefsNew = ['USE_STDPERIPH_DRIVER'];
+    switch (type) {
+        case 'STM32F103C8Tx':
+            cdefsNew.push('STM32F10X_MD');
+            break;
+        case 'STM32F103RCTx':
+            cdefsNew.push('STM32F10X_HD');
+            break;
+    }
+    cfg.update('cdefs', cdefsNew, vscode.ConfigurationTarget.Workspace);
+    //不知道为什么 cpp的不更新
+    // let cd = vscode.workspace.getConfiguration('C_Cpp.default');
+    // cd.update('defines', cfg.get('cdefs'), vscode.ConfigurationTarget.Workspace);
+    // configure.configSources();
+    vscode.commands.executeCommand('kstm32.configure');
 }
 
 /**
@@ -94,7 +115,7 @@ function mkdirSync(dir) {
         fs.mkdirSync(dir);
     } else {
         if (!fs.statSync(dir).isDirectory()) {
-            fs.unlinkSync(dir);//不是目录 先删除
+            fs.unlinkSync(dir); //不是目录 先删除
             fs.mkdirSync(dir);
         }
     }

@@ -81,12 +81,12 @@
 					"kstm32.libs.STM32f10xStdPeriph": {
 						"type": "string",
 						"description": "STM32F10x 标准外设库路径 (包含CMSIS和STM32F10x_StdPeriph_Driver目录)",
-						"default": "D:\\Things\\MCU\\STM32各种库\\STM32F10x_StdPeriph_Lib_V3.5.0\\Libraries"
+						"default": "D:\\Things\\MCU\\STM32_Libs\\STM32F10x_StdPeriph_Lib_V3.5.0\\Libraries"
 					},
 					"kstm32.libs.STM32f4xxStdPeriph": {
 						"type": "string",
 						"description": "STM32F4xx 标准外设库路径 (包含CMSIS和STM32F4xx_StdPeriph_Driver目录)",
-						"default": "D:\\Things\\MCU\\STM32各种库\\STM32F4xx_DSP_StdPeriph_Lib_V1.8.0\\Libraries"
+						"default": "D:\\Things\\MCU\\STM32_Libs\\STM32F4xx_DSP_StdPeriph_Lib_V1.8.0\\Libraries"
 					},
 					"kstm32.libs.templates": {
 						"type": "string",
@@ -114,29 +114,33 @@
 					},
 					"kstm32.csources": {
 						"type": "array",
-						"description": "C源"
+						"description": "C源",
+						"default": []
 					},
 					"kstm32.cincludes": {
 						"type": "array",
-						"description": "C包含路径"
+						"description": "C包含路径",
+						"default": []
 					},
 					"kstm32.cdefs": {
 						"type": "array",
-						"description": "C预定义"
+						"description": "C预定义",
+						"default": []
 					},
 					"kstm32.asmSources": {
 						"type": "array",
-						"description": "汇编源"
+						"description": "汇编源",
+						"default": []
 					},
-					"kstm32.autoSource": {
-						"type": "string",
-						"description": "自动管理C源的方法",
-						"enum": [
-							"autoInclude",
-							"autoExclude",
-							"manual"
-						],
-						"default": "autoExclude"
+					"kstm32.autoConfigSources": {
+						"type": "boolean",
+						"description": "自动管理项目资源",
+						"default": true
+					},
+					"kstm32.autoConfigParams": {
+						"type": "array",
+						"description": "自动管理项目资源需要排除的路径",
+						"default": []
 					}
 				}
 			}
