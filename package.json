@@ -26,7 +26,7 @@
 		"Snippets",
 		"Other"
 	],
-	"main": "./extension.js",
+	"main": "./src/kstm32.js",
 	"contributes": {
 		"commands": [
 			{
@@ -67,7 +67,7 @@
 		],
 		"configuration": [
 			{
-				"title": "暮光小猿STM32小工具",
+				"title": "暮光小猿STM32小工具 - 全局设置",
 				"properties": {
 					"kstm32.gcc": {
 						"type": "string",
@@ -92,27 +92,51 @@
 						"type": "string",
 						"description": "自定义工程模板",
 						"default": "D:\\Things\\MCU\\kstm32_template"
-					},
+					}
+				}
+			},
+			{
+				"title": "暮光小猿STM32小工具 - 项目设置",
+				"properties": {
 					"kstm32.projectName": {
 						"type": "string",
 						"description": "项目名称",
 						"default": "KSTM32_Project"
 					},
+					"kstm32.projectType": {
+						"type": "string",
+						"description": "项目类型",
+						"enum": [
+							"STM32F103C8Tx",
+							"STM32F103RCTx",
+							"STM32F407ZGTx"
+						]
+					},
 					"kstm32.csources": {
 						"type": "array",
-						"description": "C Sources"
+						"description": "C源"
 					},
 					"kstm32.cincludes": {
 						"type": "array",
-						"description": "C Includes"
+						"description": "C包含路径"
 					},
 					"kstm32.cdefs": {
 						"type": "array",
-						"description": "C Defines"
+						"description": "C预定义"
 					},
 					"kstm32.asmSources": {
 						"type": "array",
-						"description": "ASM Sources"
+						"description": "汇编源"
+					},
+					"kstm32.autoSource": {
+						"type": "string",
+						"description": "自动管理C源的方法",
+						"enum": [
+							"autoInclude",
+							"autoExclude",
+							"manual"
+						],
+						"default": "autoExclude"
 					}
 				}
 			}
@@ -139,6 +163,10 @@
 				{
 					"id": "kstm32.cdefs",
 					"name": "C Defines"
+				},
+				{
+					"id": "kstm32.stdperiph",
+					"name": "STM32 Std Periph"
 				}
 			]
 		},

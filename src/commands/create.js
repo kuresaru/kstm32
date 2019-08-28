@@ -35,6 +35,9 @@ function create(projectUri) {
                     vscode.window.showErrorMessage(templatePath + '中无模板');
                     //如果不存在 创建源码目录(./src)
                     vfs.createDirectory(vscode.Uri.parse(projectUri + '/src'));
+                    let cfg = vscode.workspace.getConfiguration('kstm32');
+                    cfg.update("projectName", result, vscode.ConfigurationTarget.Workspace);
+                    cfg.update("projectType", result, vscode.ConfigurationTarget.Workspace);
                     return;
                 }
                 //选择一个模板
@@ -46,6 +49,9 @@ function create(projectUri) {
                     //把模板内容复制到当前工程目录下
                     let srcPath = vscode.Uri.file(templatePath + '/' + name).fsPath;
                     copyDirectory(srcPath, projectUri.fsPath);
+                    let cfg = vscode.workspace.getConfiguration('kstm32');
+                    cfg.update("projectName", result, vscode.ConfigurationTarget.Workspace);
+                    cfg.update("projectType", result, vscode.ConfigurationTarget.Workspace);
                     vscode.window.showInformationMessage('初始化完成');
                 });
             } else {
@@ -84,10 +90,13 @@ function copyDirectory(src, dest) {
  * @param {String} dir 
  */
 function mkdirSync(dir) {
-    try {
-        fs.accessSync(dir);
-    } catch (e) {
+    if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir);
+    } else {
+        if (!fs.statSync(dir).isDirectory()) {
+            fs.unlinkSync(dir);//不是目录 先删除
+            fs.mkdirSync(dir);
+        }
     }
 }
 
