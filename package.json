@@ -1,5 +1,4 @@
 {
-	"publisher": "kuresaru",
 	"name": "kstm32",
 	"displayName": "暮光小猿STM32小工具",
 	"description": "STM32小工具 - 暮光小猿wzt",
@@ -16,17 +15,13 @@
 	"engines": {
 		"vscode": "^1.37.0"
 	},
-	"extensionDependencies": [
-		"ms-vscode.cpptools"
+	"categories": [
+		"Other"
 	],
 	"activationEvents": [
 		"*"
 	],
-	"categories": [
-		"Snippets",
-		"Other"
-	],
-	"main": "./src/kstm32.js",
+	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
@@ -38,9 +33,12 @@
 				"title": "KSTM32: create new project"
 			},
 			{
-				"command": "kstm32.cincludes.add",
-				"title": "KSTM32: add c Include",
-				"icon": "src/svg/add.svg"
+				"command": "kstm32.refresh",
+				"title": "KSTM32: refresh",
+				"icon": {
+					"dark": "src/svg/dark/refresh.svg",
+					"light": "src/svg/light/refresh.svg"
+				}
 			},
 			{
 				"command": "kstm32.cdefs.add",
@@ -48,20 +46,7 @@
 				"icon": "src/svg/add.svg"
 			},
 			{
-				"command": "kstm32.csources.add",
-				"title": "KSTM32: add c source",
-				"icon": "src/svg/add.svg"
-			},
-			{
-				"command": "kstm32.cincludes.delete",
-				"title": "删除"
-			},
-			{
 				"command": "kstm32.cdefs.delete",
-				"title": "删除"
-			},
-			{
-				"command": "kstm32.csources.delete",
 				"title": "删除"
 			}
 		],
@@ -141,6 +126,11 @@
 						"type": "array",
 						"description": "自动管理项目资源需要排除的路径",
 						"default": []
+					},
+					"kstm32.useLib": {
+						"type": "array",
+						"description": "需要使用的标准外设库名",
+						"default": []
 					}
 				}
 			}
@@ -177,30 +167,12 @@
 		"menus": {
 			"view/title": [
 				{
-					"command": "kstm32.csources.add",
-					"when": "view == kstm32.csources",
-					"group": "navigation"
-				},
-				{
-					"command": "kstm32.cincludes.add",
-					"when": "view == kstm32.cincludes",
-					"group": "navigation"
-				},
-				{
 					"command": "kstm32.cdefs.add",
 					"when": "view == kstm32.cdefs",
 					"group": "navigation"
 				}
 			],
 			"view/item/context": [
-				{
-					"command": "kstm32.csources.delete",
-					"when": "view == kstm32.csources"
-				},
-				{
-					"command": "kstm32.cincludes.delete",
-					"when": "view == kstm32.cincludes"
-				},
 				{
 					"command": "kstm32.cdefs.delete",
 					"when": "view == kstm32.cdefs"
@@ -209,7 +181,11 @@
 		}
 	},
 	"scripts": {
-		"test": "node ./test/runTest.js"
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile",
+		"test": "node ./out/test/runTest.js"
 	},
 	"dependencies": {
 		"text-encoding": "^0.7.0"
@@ -219,10 +195,10 @@
 		"@types/mocha": "^5.2.6",
 		"@types/node": "^10.12.21",
 		"@types/vscode": "^1.37.0",
-		"eslint": "^5.13.0",
 		"glob": "^7.1.4",
 		"mocha": "^6.1.4",
 		"typescript": "^3.3.1",
+		"tslint": "^5.12.1",
 		"vscode-test": "^1.0.0-next.0",
 		"text-encoding": "^0.7.0"
 	}

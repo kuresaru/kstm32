@@ -1,7 +1,20 @@
 const vscode = require('vscode');
 const fs = require('fs')
+const path = require('path');
+
+
 
 class TPCSources {
+
+    _onDidChangeTreeData = new vscode.EventEmitter();
+
+    get onDidChangeTreeData() {
+        return new vscode.EventEmitter();
+    }
+
+    refresh() {
+        this._onDidChangeTreeData().file();
+    }
 
     getTreeItem(element) {
         return element;
@@ -19,7 +32,7 @@ class TPCSources {
                     if (filename.endsWith('.c')) {
                         let name = filename.substr(0, filename.length - 2);
                         // result.push(filename.substr(0, filename.length - 2));
-                        result.push(new vscode.TreeItem(name));
+                        result.push(new ItemTpStdPeriph(name));
                     }
                 });
                 return Promise.resolve(result);
@@ -28,6 +41,15 @@ class TPCSources {
             }
         }
         return Promise.resolve([]);
+    }
+}
+
+class ItemTpStdPeriph extends vscode.TreeItem {
+    constructor(label) {
+        super(label);
+    }
+    get description() {
+        return 'test';
     }
 }
 

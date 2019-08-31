@@ -1,27 +1,24 @@
-const vscode = require('vscode');
-const fs = require('fs');
-const vfs = vscode.workspace.fs;
-const configure = require('./configure');
+import * as vscode from 'vscode';
+import * as fs from 'fs';
 
-/**
- * @param {vscode.ExtensionContext} context
- */
-function register(context) {
+const vfs: vscode.FileSystem = vscode.workspace.fs;
+
+export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('kstm32.create', function () {
         let workspaceFolders = vscode.workspace.workspaceFolders;
-        if (workspaceFolders.length == 1) {
-            create(workspaceFolders[0].uri);
+        if (workspaceFolders) {
+            if (workspaceFolders.length == 1) {
+                create(workspaceFolders[0].uri);
+            } else {
+                vscode.window.showErrorMessage('请不要打开多个目录');
+            }
         } else {
-            vscode.window.showErrorMessage('请不要打开多个目录');
+            vscode.window.showErrorMessage('没有打开任何目录');
         }
     }));
 }
 
-/**
- * 
- * @param {vscode.Uri} projectUri 
- */
-function create(projectUri) {
+function create(projectUri: vscode.Uri) {
     vscode.window.showQuickPick([
         "STM32F103C8Tx",
         "STM32F103RCTx",
@@ -86,11 +83,9 @@ function createConfig(type) {
 
 /**
  * 递归复制目录
- * @param {String} src 
- * @param {String} dest 
  */
-function copyDirectory(src, dest) {
-    let content = fs.readdirSync(src);
+function copyDirectory(src: fs.PathLike, dest: fs.PathLike) {
+    let content: String[] = fs.readdirSync(src);
     mkdirSync(dest);
     content.forEach(filename => {
         let _src = vscode.Uri.file(src + '/' + filename).fsPath;
@@ -110,7 +105,7 @@ function copyDirectory(src, dest) {
  * 如果不存在 创建目录
  * @param {String} dir 
  */
-function mkdirSync(dir) {
+function mkdirSync(dir: fs.PathLike) {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir);
     } else {
@@ -119,8 +114,4 @@ function mkdirSync(dir) {
             fs.mkdirSync(dir);
         }
     }
-}
-
-module.exports = {
-    register
 }

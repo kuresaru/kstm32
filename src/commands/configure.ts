@@ -1,49 +1,44 @@
-const vscode = require('vscode');
-const fs = require('fs');
+import * as vscode from 'vscode';
+import * as fs from 'fs';
 
-/**
- * @param {vscode.ExtensionContext} context
- */
-function register(context) {
+export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('kstm32.configure', function () {
         let workspaceFolders = vscode.workspace.workspaceFolders;
-        if (workspaceFolders.length == 1) {
-            configure(workspaceFolders[0].uri);
+        if (workspaceFolders) {
+            if (workspaceFolders.length == 1) {
+                configure(workspaceFolders[0].uri);
+            } else {
+                vscode.window.showErrorMessage('请不要打开多个目录');
+            }
         } else {
-            vscode.window.showErrorMessage('请不要打开多个目录');
+            vscode.window.showErrorMessage('没有打开任何目录');
         }
     }));
 }
 
-/**
- * @param {vscode.Uri} projectUri 
- */
-function configure(projectUri) {
+function configure(projectUri: vscode.Uri) {
     let encoding = require('text-encoding');
     let makefiles = require('../templates/makefiles');
 
     configSources();
     //写入makefile
-    let makefileUri = vscode.Uri.parse(projectUri + '/Makefile');
-    let makefileContent = makefiles.f10x;
-    let cfg = vscode.workspace.getConfiguration('kstm32');
-    let projectName = cfg.get('projectName');
-    let projectType = cfg.get('projectType');
-    let csources = cfg.get('csources').toString().replace(/,/g, ' ');
-    let cincludes = cfg.get('cincludes');
-    let cdefs = cfg.get('cdefs');
-    let asmSources = cfg.get('asmSources');
-    let gcc = cfg.get('gcc');
-    let prefix = cfg.get('gccPrefix');
+    let makefileUri: vscode.Uri = vscode.Uri.parse(projectUri + '/Makefile');
+    let makefileContent: String = makefiles.f10x;
+    let cfg: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('kstm32');
+    let projectName = <string>cfg.get('projectName');
+    let projectType = <string>cfg.get('projectType');
+    let gcc = (<string>cfg.get('gcc'));
+    let prefix = (<string>cfg.get('gccPrefix'));
     if (gcc != '')
         makefileContent = makefileContent.replace(/\{kstm32\:gccpath\}/g, 'GCC_PATH' + gcc + '\n');
-    if (cincludes != '')
-        cincludes = (',' + cincludes).toString().replace(/,/g, ' -I');
-    if (cdefs != '')
-        cdefs = (',' + cdefs).toString().replace(/,/g, ' -D');
-    if (asmSources != '') {
-        asmSources = (',' + asmSources).toString().replace(/,/g, ' ');
-    }
+    let csources: string = '';
+    (<string[]>cfg.get('csources')).forEach(source => csources += `${source} `);
+    let cincludes: string = '';
+    (<string[]>cfg.get('cincludes')).forEach(include => cincludes += `-I${include}`);
+    let cdefs: string = '';
+    (<string[]>cfg.get('cdefs')).forEach(define => cdefs += `-D${define}`);
+    let asmSources: string = '';
+    (<string[]>cfg.get('asmSources')).forEach(source => asmSources += `${source} `);
     let libs;
     switch (projectType) {
         case 'STM32F103C8Tx':
@@ -77,22 +72,25 @@ function configure(projectUri) {
  * 自动设置includes sources
  */
 function configSources() {
+    let root = vscode.workspace.rootPath;
+    if (!root) {
+        return;
+    }
     let cfg = vscode.workspace.getConfiguration('kstm32');
     let cd = vscode.workspace.getConfiguration('C_Cpp.default');
     let autoConfigEnable = cfg.get('autoConfigSources');
     if (autoConfigEnable) {
-        let root = vscode.workspace.rootPath;
         let contents = rlsDir(root, '');
         let excludes = cfg.get("autoConfigParams");
         let libs = cfg.get('libs.STM32f10xStdPeriph');
-        let cincludesNew = [];
-        let cincludesNewForCext = [];
-        let csourcesNew = [];
-        let asmsourcesNew = [];
+        let cincludesNew: String[] = [];
+        let cincludesNewForCext: String[] = [];
+        let csourcesNew: String[] = [];
+        let asmsourcesNew: String[] = [];
 
         contents.forEach(content => {
-            //如果不在排除列表里就加入
-            if (excludes.indexOf(content) == -1) {
+            //如果不在排除列表里 或者根本没有排除列表 就加入
+            if (!excludes || (<String[]>excludes).indexOf(content) == -1) {
                 if (content.endsWith('/')) {
                     content = content.substring(0, content.length - 1);
                     let str = fs.readdirSync(root + '/' + content).join(',') + ','; //[a,b,c]->"a,b,c,"
@@ -124,12 +122,10 @@ function configSources() {
 
 /**
  * 递归列目录内容
- * @param {String} basePath 目录路径
- * @param {String} subPath 空字符串
  */
-function rlsDir(basePath, subPath) {
-    let result = [];
-    fs.readdirSync(basePath + subPath).forEach(filename => {
+function rlsDir(basePath: String, subPath?: String): String[] {
+    let result: String[] = [];
+    fs.readdirSync(`${basePath}${subPath}`).forEach(filename => {
         if (filename != '.vscode') {
             let stat = fs.statSync(basePath + '/' + subPath + '/' + filename);
             let r = (subPath + '/' + filename).substring(1);
@@ -144,10 +140,4 @@ function rlsDir(basePath, subPath) {
         }
     });
     return result;
-}
-
-module.exports = {
-    register,
-    configure,
-    configSources
 }
