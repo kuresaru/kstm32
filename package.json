@@ -43,10 +43,13 @@
 			{
 				"command": "kstm32.cdefs.add",
 				"title": "KSTM32: add c define",
-				"icon": "src/svg/add.svg"
+				"icon": {
+					"dark": "src/svg/add.svg",
+					"light": "src/svg/add.svg"
+				}
 			},
 			{
-				"command": "kstm32.cdefs.delete",
+				"command": "kstm32.cdefs.remove",
 				"title": "删除"
 			},
 			{
@@ -178,7 +181,7 @@
 			],
 			"view/item/context": [
 				{
-					"command": "kstm32.cdefs.delete",
+					"command": "kstm32.cdefs.remove",
 					"when": "view == kstm32.cdefs"
 				},
 				{
