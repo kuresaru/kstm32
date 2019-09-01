@@ -27,6 +27,7 @@ function configure(projectUri: vscode.Uri) {
     let cfg: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('kstm32');
     let projectName = <string>cfg.get('projectName');
     let projectType = <string>cfg.get('projectType');
+    let useLib = <string[]>cfg.get('useLib');
     let gcc = (<string>cfg.get('gcc'));
     let prefix = (<string>cfg.get('gccPrefix'));
     if (gcc != '')
@@ -40,18 +41,20 @@ function configure(projectUri: vscode.Uri) {
     let asmSources: string = '';
     (<string[]>cfg.get('asmSources')).forEach(source => asmSources += `${source} `);
     //加入库文件
-    let libs;
+    let libs: string;
     switch (projectType) {
         case 'STM32F103C8Tx':
-            libs = cfg.get('libs.STM32f10xStdPeriph');
-            asmSources += `${libs}'/CMSIS/CM3/DeviceSupport/ST/STM32F10x/startup/gcc_ride7/startup_stm32f10x_md.s`;
-            csources += `${libs}/CMSIS/CM3/CoreSupport/core_cm3.c`;
+            libs = <string>cfg.get('libs.STM32f10xStdPeriph');
+            asmSources += `${libs}/CMSIS/CM3/DeviceSupport/ST/STM32F10x/startup/gcc_ride7/startup_stm32f10x_md.s `;
+            csources += `${libs}/CMSIS/CM3/CoreSupport/core_cm3.c `;
+            useLib.forEach(name => csources += `${libs}/STM32F10x_StdPeriph_Driver/src/${name}.c `);
             cincludes += `-I${vscode.Uri.file(libs + '/STM32F10x_StdPeriph_Driver/inc').fsPath} -I${vscode.Uri.file(libs + '/CMSIS/CM3/CoreSupport').fsPath} `;
             break;
         case 'STM32F103RCTx':
-            libs = cfg.get('libs.STM32f10xStdPeriph');
-            asmSources += `${libs}'/CMSIS/CM3/DeviceSupport/ST/STM32F10x/startup/gcc_ride7/startup_stm32f10x_hd.s`;
-            csources += `${libs}/CMSIS/CM3/CoreSupport/core_cm3.c`;
+            libs = <string>cfg.get('libs.STM32f10xStdPeriph');
+            asmSources += `${libs}/CMSIS/CM3/DeviceSupport/ST/STM32F10x/startup/gcc_ride7/startup_stm32f10x_hd.s `;
+            csources += `${libs}/CMSIS/CM3/CoreSupport/core_cm3.c `;
+            useLib.forEach(name => csources += `${libs}/STM32F10x_StdPeriph_Driver/src/${name}.c `);
             cincludes += `-I${vscode.Uri.file(libs + '/STM32F10x_StdPeriph_Driver/inc').fsPath} -I${vscode.Uri.file(libs + '/CMSIS/CM3/CoreSupport').fsPath} `;
             break;
     }

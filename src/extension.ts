@@ -17,6 +17,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 	create.register(context);
 	configure.register(context);
+	
+	tpStdPeriph.registerCmd(context);
 
 	let tpstdperiph = new tpStdPeriph.TPStdPeriph();
 	vscode.window.registerTreeDataProvider('kstm32.stdperiph', tpstdperiph);

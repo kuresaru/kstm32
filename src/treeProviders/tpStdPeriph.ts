@@ -53,8 +53,23 @@ class ItemTpStdPeriph extends vscode.TreeItem {
     }
 }
 
-export function register(): TPStdPeriph {
-    let result = new TPStdPeriph();
-    vscode.window.registerTreeDataProvider('kstm32.stdperiph', result);
-    return result;
+export function registerCmd(context: vscode.ExtensionContext) {
+    context.subscriptions.push(vscode.commands.registerCommand('kstm32.toggleuselib', (libname) => {
+        console.log(libname);
+        if (libname instanceof vscode.TreeItem && libname.label) {
+            let cfg: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('kstm32');
+            let useLib: string[] | undefined = cfg.get('useLib');
+            if (!useLib) {
+                useLib = [];
+            }
+            let index = (<string[]>useLib).indexOf(libname.label);
+            if (index != -1) {
+                useLib.splice(index, 1);
+            } else {
+                useLib.push(libname.label);
+            }
+            cfg.update('useLib', useLib, vscode.ConfigurationTarget.Workspace);
+            vscode.commands.executeCommand('kstm32.refresh');
+        }
+    }));
 }
