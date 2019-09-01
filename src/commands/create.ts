@@ -60,7 +60,7 @@ function create(projectUri: vscode.Uri) {
     });
 }
 
-function createConfig(type) {
+function createConfig(type: string) {
     let cfg = vscode.workspace.getConfiguration('kstm32');
     cfg.update("projectName", type, vscode.ConfigurationTarget.Workspace);
     cfg.update("projectType", type, vscode.ConfigurationTarget.Workspace);

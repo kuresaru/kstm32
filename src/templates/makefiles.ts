@@ -6,11 +6,12 @@ C_SOURCES = {kstm32:csources}\n\
 ASM_SOURCES = {kstm32:asmsources}\n\
 DEBUG = 1\n\
 PREFIX = {kstm32:prefix}\n\
-{kstm32:gccpath}ifdef GCC_PATH\n\
-CC = $(GCC_PATH)/$(PREFIX)gcc\n\
-AS = $(GCC_PATH)/$(PREFIX)gcc -x assembler-with-cpp\n\
-CP = $(GCC_PATH)/$(PREFIX)objcopy\n\
-SZ = $(GCC_PATH)/$(PREFIX)size\n\
+GCC_PATH={kstm32:gccpath}\n\
+ifdef GCC_PATH\n\
+CC = \"$(GCC_PATH)/$(PREFIX)gcc\"\n\
+AS = \"$(GCC_PATH)/$(PREFIX)gcc\" -x assembler-with-cpp\n\
+CP = \"$(GCC_PATH)/$(PREFIX)objcopy\"\n\
+SZ = \"$(GCC_PATH)/$(PREFIX)size\"\n\
 else\n\
 CC = $(PREFIX)gcc\n\
 AS = $(PREFIX)gcc -x assembler-with-cpp\n\

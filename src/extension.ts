@@ -7,6 +7,8 @@ import * as configure from './commands/configure';
 
 import * as tpStdPeriph from './treeProviders/tpStdPeriph';
 import * as tpCdefs from './treeProviders/tpCDefs';
+import * as tpCincludes from './treeProviders/tpCIncludes';
+import * as tpCsources from './treeProviders/tpCSources';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -24,13 +26,20 @@ export function activate(context: vscode.ExtensionContext) {
 
 	let tpstdperiph = new tpStdPeriph.TPStdPeriph();
 	let tpcdefs = new tpCdefs.TPCDefines();
+	let tpcincludes = new tpCincludes.TPCIncludes();
+	let tpcsources = new tpCsources.TPCSources();
 
 	vscode.window.registerTreeDataProvider('kstm32.stdperiph', tpstdperiph);
 	vscode.window.registerTreeDataProvider('kstm32.cdefs', tpcdefs);
+	vscode.window.registerTreeDataProvider('kstm32.cincludes', tpcincludes);
+	vscode.window.registerTreeDataProvider('kstm32.csources', tpcsources);
 
 	context.subscriptions.push(vscode.commands.registerCommand('kstm32.refresh', () => {
 		tpstdperiph.refresh();
 		tpcdefs.refresh();
+		tpcincludes.refresh();
+		tpcsources.refresh();
+		vscode.commands.executeCommand('kstm32.configure');
 	}));
 }
 

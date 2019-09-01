@@ -26,7 +26,7 @@ export function registerCmd(context: vscode.ExtensionContext) {
         }
         if (!define) {
             vscode.window.showInputBox().then(input => {
-                if (input == '') {
+                if (!input || input == '') {
                     return;
                 }
                 (<string[]>cdefs).push(<string>input);

@@ -61,14 +61,10 @@
 			{
 				"title": "暮光小猿STM32小工具 - 全局设置",
 				"properties": {
-					"kstm32.gcc": {
+					"kstm32.gccToolchainHome": {
 						"type": "string",
-						"description": "gcc的路径 (留空使用系统环境变量)"
-					},
-					"kstm32.gccPrefix": {
-						"type": "string",
-						"description": "gcc指令前缀",
-						"default": "arm-none-eabi-"
+						"description": "gcc工具链的路径",
+						"default": "D:\\DevTools\\GNU Tools ARM Embedded\\4.7 2013q1"
 					},
 					"kstm32.libs.STM32f10xStdPeriph": {
 						"type": "string",
