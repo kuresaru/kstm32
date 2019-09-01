@@ -30,30 +30,29 @@ function configure(projectUri: vscode.Uri) {
     let gcc = (<string>cfg.get('gcc'));
     let prefix = (<string>cfg.get('gccPrefix'));
     if (gcc != '')
-        makefileContent = makefileContent.replace(/\{kstm32\:gccpath\}/g, 'GCC_PATH' + gcc + '\n');
+        makefileContent = makefileContent.replace(/\{kstm32\:gccpath\}/g, `GCC_PATH=${gcc}\n`);
     let csources: string = '';
     (<string[]>cfg.get('csources')).forEach(source => csources += `${source} `);
     let cincludes: string = '';
-    (<string[]>cfg.get('cincludes')).forEach(include => cincludes += `-I${include}`);
+    (<string[]>cfg.get('cincludes')).forEach(include => cincludes += `-I${include} `);
     let cdefs: string = '';
-    (<string[]>cfg.get('cdefs')).forEach(define => cdefs += `-D${define}`);
+    (<string[]>cfg.get('cdefs')).forEach(define => cdefs += `-D${define} `);
     let asmSources: string = '';
     (<string[]>cfg.get('asmSources')).forEach(source => asmSources += `${source} `);
+    //加入库文件
     let libs;
     switch (projectType) {
         case 'STM32F103C8Tx':
             libs = cfg.get('libs.STM32f10xStdPeriph');
-            asmSources += ' ' + (libs + '/CMSIS/CM3/DeviceSupport/ST/STM32F10x/startup/gcc_ride7/startup_stm32f10x_md.s');
-            csources += ' ' + (libs + '/CMSIS/CM3/CoreSupport/core_cm3.c');
-            cincludes += ' -I' + vscode.Uri.file(libs + '/STM32F10x_StdPeriph_Driver/inc').fsPath;
-            cincludes += ' -I' + vscode.Uri.file(libs + '/CMSIS/CM3/CoreSupport').fsPath;
+            asmSources += `${libs}'/CMSIS/CM3/DeviceSupport/ST/STM32F10x/startup/gcc_ride7/startup_stm32f10x_md.s`;
+            csources += `${libs}/CMSIS/CM3/CoreSupport/core_cm3.c`;
+            cincludes += `-I${vscode.Uri.file(libs + '/STM32F10x_StdPeriph_Driver/inc').fsPath} -I${vscode.Uri.file(libs + '/CMSIS/CM3/CoreSupport').fsPath} `;
             break;
         case 'STM32F103RCTx':
             libs = cfg.get('libs.STM32f10xStdPeriph');
-            asmSources += ' ' + (libs + '/CMSIS/CM3/DeviceSupport/ST/STM32F10x/startup/gcc_ride7/startup_stm32f10x_hd.s');
-            csources += ' ' + (libs + '/CMSIS/CM3/CoreSupport/core_cm3.c');
-            cincludes += ' -I' + vscode.Uri.file(libs + '/STM32F10x_StdPeriph_Driver/inc').fsPath;
-            cincludes += ' -I' + vscode.Uri.file(libs + '/CMSIS/CM3/CoreSupport').fsPath;
+            asmSources += `${libs}'/CMSIS/CM3/DeviceSupport/ST/STM32F10x/startup/gcc_ride7/startup_stm32f10x_hd.s`;
+            csources += `${libs}/CMSIS/CM3/CoreSupport/core_cm3.c`;
+            cincludes += `-I${vscode.Uri.file(libs + '/STM32F10x_StdPeriph_Driver/inc').fsPath} -I${vscode.Uri.file(libs + '/CMSIS/CM3/CoreSupport').fsPath} `;
             break;
     }
     makefileContent = makefileContent
