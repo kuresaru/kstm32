@@ -11,11 +11,10 @@ export function register(context: vscode.ExtensionContext) {
     }));
 }
 
-function configure(projectUri: vscode.Uri) {
+function configure(root: vscode.Uri) {
     let kstm32cfg: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('kstm32');
     let cppcfg = vscode.workspace.getConfiguration('C_Cpp.default');
 
-    let root = config.getWorkspaceRoot();
     let makefilePath = vscode.Uri.parse(`${root}/Makefile`).fsPath;
 
     fs.readFile(makefilePath, {encoding: 'UTF-8'}, (err, makefile) => {
@@ -24,8 +23,18 @@ function configure(projectUri: vscode.Uri) {
             return;
         }
 
+        // autoconf
+        let sources: string[] = [];
+        let includes: string[] = [];
+        rlsDir(root.fsPath, '/src').forEach(filename => {
+            if (filename.endsWith('.c') || filename.endsWith('.C')) {
+                sources.push(filename);
+            } else if (filename.endsWith('.h') || filename.endsWith('.H')) {
+                config.myArrayAdd(includes, filename.substring(0, filename.lastIndexOf('/')));
+            }
+        });
+
         // sources
-        let sources: string[] = config.getSource();
         let makefileSources: string = '';
         sources.forEach(source => makefileSources = `${makefileSources} \\\r\n${source}`);
         let msarr = makefile.match(/#--kstm32-autoconf:sources\r?\n([a-zA-Z0-9_]+) *=(.*\\\r?\n)*.*/);
@@ -44,7 +53,7 @@ function configure(projectUri: vscode.Uri) {
         cppcfg.update('defines', defines, vscode.ConfigurationTarget.Workspace);
 
         // includes
-        let includes: string[] = config.getInclude();
+        config.getInclude().forEach(include => includes.push(include));
         let makefileIncludes: string = '';
         includes.forEach(include => makefileIncludes = `${makefileIncludes} \\\r\n-I${include}`);
         let miarr = makefile.match(/#--kstm32-autoconf:includes\r?\n([a-zA-Z0-9_]+) *=(.*\\\r?\n)*.*/);
@@ -164,8 +173,9 @@ function configure(projectUri: vscode.Uri) {
 /**
  * 递归列目录内容
  */
-function rlsDir(basePath: String, subPath?: String): String[] {
-    let result: String[] = [];
+function rlsDir(basePath: string, subPath?: string): string[] {
+    let result: string[] = [];
+    console.log(`${basePath}${subPath}`);
     fs.readdirSync(`${basePath}${subPath}`).forEach(filename => {
         if (filename != '.vscode') {
             let stat = fs.statSync(basePath + '/' + subPath + '/' + filename);

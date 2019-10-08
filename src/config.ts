@@ -45,7 +45,7 @@ function saveConfig(config: Kstm32Config) {
     }
 }
 
-function myArrayAdd(array: any, item: any) {
+export function myArrayAdd(array: any, item: any) {
     for (let i in array) {
         if (array[i] == item) {
             return;
