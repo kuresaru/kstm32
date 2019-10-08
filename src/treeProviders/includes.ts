@@ -7,7 +7,10 @@ export class TPCIncludes extends tpTemplate.tpTemplate<vscode.TreeItem>{
         let result: vscode.TreeItem[] = [];
         //root
         if (!element) {
-            config.getInclude().forEach(element => result.push(new vscode.TreeItem(element)));
+            let conf = config.getConfig();
+            if (conf && conf.includes) {
+                conf.includes.forEach(element => result.push(new vscode.TreeItem(element)));
+            }
         }
         return Promise.resolve(result);
     }

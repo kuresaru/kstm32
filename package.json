@@ -65,11 +65,11 @@
 						"type": "string",
 						"description": "gcc工具链的路径"
 					},
-					"kstm32.libs.STM32f10xStdPeriph": {
+					"kstm32.libs.STM32F10xStdPeriph": {
 						"type": "string",
 						"description": "STM32F10x 标准外设库路径 (包含CMSIS和STM32F10x_StdPeriph_Driver目录)"
 					},
-					"kstm32.libs.STM32f4xxStdPeriph": {
+					"kstm32.libs.STM32F4xxStdPeriph": {
 						"type": "string",
 						"description": "STM32F4xx 标准外设库路径 (包含CMSIS和STM32F4xx_StdPeriph_Driver目录)"
 					},

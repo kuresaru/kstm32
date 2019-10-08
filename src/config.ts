@@ -3,7 +3,7 @@ import * as fs from 'fs';
 
 const CONFIG_FILENAME = '/kstm32.json';
 
-type Kstm32Config = {
+export type Kstm32Config = {
     type?: string;
     includes?: string[];
     defines?: string[];
@@ -56,7 +56,7 @@ export function myArrayAdd(array: any, item: any) {
     array.push(item);
 }
 
-function myArrayDel(array: any, item: any) {
+export function myArrayDel(array: any, item: any) {
     if (array) {
         let index = array.indexOf(item);
         while (index != -1) {
@@ -64,103 +64,4 @@ function myArrayDel(array: any, item: any) {
             index = array.indexOf(item);
         }
     }
-}
-
-export function addInclude(include: string): boolean {
-    let config = getConfig();
-    if (config) {
-        if (!config.includes) {
-            config.includes = [];
-        }
-        myArrayAdd(config.includes, include);
-        saveConfig(config);
-        return true;
-    }
-    return false;
-}
-
-export function rmInclude(include: string): boolean {
-    let config = getConfig();
-    if (config) {
-        myArrayDel(config.includes, include);
-        saveConfig(config);
-        return true;
-    }
-    return false;
-}
-
-export function getInclude(): string[] {
-    let config = getConfig();
-    if (config) {
-        if (config.includes) {
-            return config.includes;
-        }
-    }
-    return [];
-}
-
-export function addDefine(define: string): boolean {
-    let config = getConfig();
-    if (config) {
-        if (!config.defines) {
-            config.defines = [];
-        }
-        myArrayAdd(config.defines, define);
-        saveConfig(config);
-        return true;
-    }
-    return false;
-}
-
-export function rmDefine(define: string): boolean {
-    let config = getConfig();
-    if (config) {
-        myArrayDel(config.defines, define);
-        saveConfig(config);
-        return true;
-    }
-    return false;
-}
-
-export function getDefine(): string[] {
-    let config = getConfig();
-    if (config) {
-        if (config.defines) {
-            return config.defines;
-        }
-    }
-    return [];
-}
-
-export function addSource(source: string): boolean {
-    let config = getConfig();
-    if (config) {
-        if (!config.sources) {
-            config.sources = [];
-        }
-        myArrayAdd(config.sources, source);
-        saveConfig(config);
-        return true;
-    }
-    return false;
-}
-
-export function rmSource(source: string): boolean {
-    let config = getConfig();
-    if (config) {
-        myArrayDel(config.sources, source);
-        saveConfig(config);
-        return true;
-    }
-    return false;
-}
-
-export function getSource(): string[] {
-    let config = getConfig();
-    if (config) {
-        if (config.sources) {
-            return config.sources;
-        }
-    }
-    return [];
 }

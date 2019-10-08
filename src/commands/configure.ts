@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as config from '../config';
+import * as stdperiph from '../treeProviders/stdperiph';
 
 export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('kstm32.configure', function () {
@@ -14,14 +15,17 @@ export function register(context: vscode.ExtensionContext) {
 function configure(root: vscode.Uri) {
     let kstm32cfg: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('kstm32');
     let cppcfg = vscode.workspace.getConfiguration('C_Cpp.default');
+    let conf: config.Kstm32Config = config.getConfig() || {};
 
     let makefilePath = vscode.Uri.parse(`${root}/Makefile`).fsPath;
 
-    fs.readFile(makefilePath, {encoding: 'UTF-8'}, (err, makefile) => {
+    fs.readFile(makefilePath, { encoding: 'UTF-8' }, (err, makefile) => {
         if (err) {
             vscode.window.showErrorMessage(`读取 ./Makefile 出错: ${err.message}`);
             return;
         }
+
+        let libPath: stdperiph.LibPath | undefined = stdperiph.getLibPath(kstm32cfg, conf);
 
         // autoconf
         let sources: string[] = [];
@@ -33,6 +37,11 @@ function configure(root: vscode.Uri) {
                 config.myArrayAdd(includes, filename.substring(0, filename.lastIndexOf('/')));
             }
         });
+        if (libPath) {
+            (conf.useLib || []).forEach(lib => {
+                sources.push(`${(libPath || {}).stdperiph}/src/${lib}`.replace(/\\/g, '/'));
+            });
+        }
 
         // sources
         let makefileSources: string = '';
@@ -41,9 +50,9 @@ function configure(root: vscode.Uri) {
         if (msarr) {
             makefile = makefile.replace(msarr[0], `#--kstm32-autoconf:sources\r\n${msarr[1]} =${makefileSources}`);
         }
-        
+
         // defines
-        let defines: string[] = config.getDefine();
+        let defines = conf.defines || [];
         let makefileDefines: string = '';
         defines.forEach(define => makefileDefines = `${makefileDefines} \\\r\n-D${define}`);
         let mdarr = makefile.match(/#--kstm32-autoconf:defines\r?\n([a-zA-Z0-9_]+) *=(.*\\\r?\n)*.*/);
@@ -53,7 +62,7 @@ function configure(root: vscode.Uri) {
         cppcfg.update('defines', defines, vscode.ConfigurationTarget.Workspace);
 
         // includes
-        config.getInclude().forEach(include => includes.push(include));
+        (conf.includes || []).forEach(include => includes.push(include));
         let makefileIncludes: string = '';
         includes.forEach(include => makefileIncludes = `${makefileIncludes} \\\r\n-I${include}`);
         let miarr = makefile.match(/#--kstm32-autoconf:includes\r?\n([a-zA-Z0-9_]+) *=(.*\\\r?\n)*.*/);
@@ -63,7 +72,7 @@ function configure(root: vscode.Uri) {
         cppcfg.update('includePath', includes, vscode.ConfigurationTarget.Workspace);
 
         // write Makefile
-        fs.writeFile(makefilePath, makefile, {encoding: 'UTF-8'}, err => {
+        fs.writeFile(makefilePath, makefile, { encoding: 'UTF-8' }, err => {
             if (err) {
                 vscode.window.showErrorMessage(`写入 ./Makefile 出错: ${err.message}`);
             }
@@ -159,7 +168,7 @@ function configure(root: vscode.Uri) {
 //         cfg.update('cincludes', cincludesNew, vscode.ConfigurationTarget.Workspace);
 //         cfg.update('csources', csourcesNew, vscode.ConfigurationTarget.Workspace);
 //         cfg.update('asmSources', asmsourcesNew, vscode.ConfigurationTarget.Workspace);
-        
+
 //         cincludesNewForCext.push(vscode.Uri.file(libs + '/STM32F10x_StdPeriph_Driver/inc/*').fsPath);
 //         // cincludesNewForCext.push(vscode.Uri.file(`${gcc}/arm-none-eabi/include/*`).fsPath);
 //         cincludesNewForCext.push(vscode.Uri.file(libs + '/CMSIS/CM3/CoreSupport/*').fsPath);
@@ -175,7 +184,6 @@ function configure(root: vscode.Uri) {
  */
 function rlsDir(basePath: string, subPath?: string): string[] {
     let result: string[] = [];
-    console.log(`${basePath}${subPath}`);
     fs.readdirSync(`${basePath}${subPath}`).forEach(filename => {
         if (filename != '.vscode') {
             let stat = fs.statSync(basePath + '/' + subPath + '/' + filename);

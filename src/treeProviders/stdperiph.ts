@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-// import * as path from 'path';
+import * as config from '../config';
 
 export class TPStdPeriph implements vscode.TreeDataProvider<vscode.TreeItem> {
 
@@ -16,19 +16,28 @@ export class TPStdPeriph implements vscode.TreeDataProvider<vscode.TreeItem> {
     }
     getChildren(element?: vscode.TreeItem): Thenable<vscode.TreeItem[]> {
         if (!element) {
-            let stdPeriph = vscode.Uri.file(vscode.workspace.getConfiguration('kstm32.libs').get('STM32f10xStdPeriph') + '/STM32F10x_StdPeriph_Driver/src').fsPath;
-            if (fs.existsSync(stdPeriph) && fs.statSync(stdPeriph).isDirectory()) {
-                let result: vscode.TreeItem[] = [];
-                fs.readdirSync(stdPeriph).forEach(filename => {
-                    if (filename.endsWith('.c')) {
-                        let name = filename.substr(0, filename.length - 2);
-                        // result.push(filename.substr(0, filename.length - 2));
-                        result.push(new ItemTpStdPeriph(name));
+            let kstm32conf: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('kstm32');
+            let conf = config.getConfig() || {};
+            if (conf.type) {
+                let libPath: LibPath | undefined = getLibPath(kstm32conf, conf);
+                if (libPath) {
+                    let srcPath = `${libPath.stdperiph}/src`
+                    if (fs.existsSync(srcPath) && fs.statSync(srcPath).isDirectory()) {
+                        let result: vscode.TreeItem[] = [];
+                        fs.readdirSync(srcPath).forEach(filename => {
+                            if (filename.endsWith('.c') || filename.endsWith('.C')) {
+                                result.push(new ItemTpStdPeriph(filename));
+                            }
+                        })
+                        return Promise.resolve(result);
+                    } else {
+                        return Promise.resolve([new vscode.TreeItem(`错误的类型或插件设置`)]);
                     }
-                });
-                return Promise.resolve(result);
+                } else {
+                    return Promise.resolve([new vscode.TreeItem(`未知的项目类型或错误的插件设置`)]);
+                }
             } else {
-                return Promise.resolve([new vscode.TreeItem('Invalid StdPeriphLibrary Path')]);
+                return Promise.resolve([new vscode.TreeItem(`未知的项目类型`)]);
             }
         }
         return Promise.resolve([]);
@@ -36,16 +45,17 @@ export class TPStdPeriph implements vscode.TreeDataProvider<vscode.TreeItem> {
 }
 
 class ItemTpStdPeriph extends vscode.TreeItem {
-    constructor(label: string) {
-        super(label);
+    filename: string;
+    constructor(filename: string) {
+        super(filename.substring(0, filename.length - 2));
+        this.filename = filename;
     }
     get description(): string {
-        let cfg: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('kstm32');
-        let useLib: string[] | undefined = cfg.get('useLib');
-        if (!useLib) {
-            return '';
-        } else if (this.label) {
-            if ((<string[]>useLib).indexOf(this.label) != -1) {
+        let conf: config.Kstm32Config | undefined = config.getConfig();
+        if (conf) {
+            let useLib: string[] = conf.useLib || [];
+            let index = useLib.indexOf(this.filename);
+            if (index != -1) {
                 return '[已启用]'
             }
         }
@@ -53,22 +63,53 @@ class ItemTpStdPeriph extends vscode.TreeItem {
     }
 }
 
+export type LibPath = {
+    root: string;
+    stdperiph: string;
+}
+
+export function getLibPath(kstm32cfg: vscode.WorkspaceConfiguration, cfg: config.Kstm32Config): LibPath | undefined {
+    let type: string | undefined = cfg.type;
+    let libPath: string | undefined;
+    let result: LibPath | undefined;
+    if (type) {
+        if (type.match(/STM32F10...../)) {
+            libPath = kstm32cfg.get('libs.STM32F10xStdPeriph');
+            if (libPath) {
+                result = {
+                    root: libPath,
+                    stdperiph: `${libPath}/STM32F10x_StdPeriph_Driver`
+                };
+            }
+        } else if (type.match(/STM32F4....../)) {
+            libPath = kstm32cfg.get('libs.STM32F4xxStdPeriph');
+            if (libPath) {
+                result = {
+                    root: libPath,
+                    stdperiph: `${libPath}/STM32F4xx_StdPeriph_Driver`
+                };
+            }
+        }
+    }
+    return result;
+}
+
 export function registerCmd(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('kstm32.toggleuselib', (libname) => {
-        if (libname instanceof vscode.TreeItem && libname.label) {
-            let cfg: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('kstm32');
-            let useLib: string[] | undefined = cfg.get('useLib');
-            if (!useLib) {
-                useLib = [];
+        if (libname instanceof ItemTpStdPeriph) {
+            let conf: config.Kstm32Config | undefined = config.getConfig();
+            if (conf) {
+                let useLib: string[] = conf.useLib || [];
+                let index = useLib.indexOf(libname.filename);
+                if (index == -1) {
+                    useLib.push(libname.filename);
+                } else {
+                    config.myArrayDel(useLib, libname.filename);
+                }
+                conf.useLib = useLib;
+                config.saveConfig(conf);
+                vscode.commands.executeCommand('kstm32.refresh');
             }
-            let index = (<string[]>useLib).indexOf(libname.label);
-            if (index != -1) {
-                useLib.splice(index, 1);
-            } else {
-                useLib.push(libname.label);
-            }
-            cfg.update('useLib', useLib, vscode.ConfigurationTarget.Workspace);
-            vscode.commands.executeCommand('kstm32.refresh');
         }
     }));
 }
