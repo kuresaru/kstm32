@@ -35,11 +35,11 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.window.registerTreeDataProvider('kstm32.csources', tpcsources);
 
 	context.subscriptions.push(vscode.commands.registerCommand('kstm32.refresh', () => {
+		vscode.commands.executeCommand('kstm32.configure');
 		tpstdperiph.refresh();
 		tpcdefs.refresh();
 		tpcincludes.refresh();
 		tpcsources.refresh();
-		vscode.commands.executeCommand('kstm32.configure');
 	}));
 }
 

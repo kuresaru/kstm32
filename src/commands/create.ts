@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
+import * as config from '../config';
 
 const vfs: vscode.FileSystem = vscode.workspace.fs;
 
@@ -36,7 +37,6 @@ function create(projectUri: vscode.Uri) {
                     vscode.window.showErrorMessage(templatePath + '中无模板');
                     //如果不存在 创建源码目录(./src)
                     vfs.createDirectory(vscode.Uri.parse(projectUri + '/src'));
-                    createConfig(result);
                     return;
                 }
                 //选择一个模板
@@ -47,8 +47,13 @@ function create(projectUri: vscode.Uri) {
                     }
                     //把模板内容复制到当前工程目录下
                     let srcPath = vscode.Uri.file(templatePath + '/' + name).fsPath;
-                    copyDirectory(srcPath, projectUri.fsPath);
+                    let errpath = copyDirectory(srcPath, projectUri.fsPath);
+                    if (errpath) {
+                        vscode.window.showErrorMessage(`创建目录${errpath}失败`);
+                        return;
+                    }
                     createConfig(result);
+                    vscode.commands.executeCommand('kstm32.refresh');
                     vscode.window.showInformationMessage('初始化完成');
                 });
             } else {
@@ -61,32 +66,31 @@ function create(projectUri: vscode.Uri) {
 }
 
 function createConfig(type: string) {
-    let cfg = vscode.workspace.getConfiguration('kstm32');
-    cfg.update("projectName", type, vscode.ConfigurationTarget.Workspace);
-    cfg.update("projectType", type, vscode.ConfigurationTarget.Workspace);
-    let cdefsNew = ['USE_STDPERIPH_DRIVER'];
-    switch (type) {
-        case 'STM32F103C8Tx':
-            cdefsNew.push('STM32F10X_MD');
-            break;
-        case 'STM32F103RCTx':
-            cdefsNew.push('STM32F10X_HD');
-            break;
+    let conf = config.getConfig();
+    if (conf) {
+        conf.type = type;
+        conf.includes = ['USE_STDPERIPH_DRIVER'];
+        switch (type) {
+            case 'STM32F103C8Tx':
+                conf.includes.push('STM32F10X_MD');
+                break;
+            case 'STM32F103RCTx':
+                conf.includes.push('STM32F10X_HD');
+                break;
+        }
+        config.saveConfig(conf);
     }
-    cfg.update('cdefs', cdefsNew, vscode.ConfigurationTarget.Workspace);
-    //不知道为什么 cpp的不更新
-    // let cd = vscode.workspace.getConfiguration('C_Cpp.default');
-    // cd.update('defines', cfg.get('cdefs'), vscode.ConfigurationTarget.Workspace);
-    // configure.configSources();
-    vscode.commands.executeCommand('kstm32.configure');
 }
 
 /**
  * 递归复制目录
+ * @returns 返回出错的目录
  */
-function copyDirectory(src: fs.PathLike, dest: fs.PathLike) {
+function copyDirectory(src: fs.PathLike, dest: fs.PathLike): string | undefined {
     let content: String[] = fs.readdirSync(src);
-    mkdirSync(dest);
+    if (!mymkdir(dest)) {
+        return dest.toString();
+    }
     content.forEach(filename => {
         let _src = vscode.Uri.file(src + '/' + filename).fsPath;
         let _dest = vscode.Uri.file(dest + '/' + filename).fsPath;
@@ -96,7 +100,10 @@ function copyDirectory(src: fs.PathLike, dest: fs.PathLike) {
             let writeStream = fs.createWriteStream(_dest);
             readStream.pipe(writeStream);
         } else if (stats.isDirectory) {
-            copyDirectory(_src, _dest);
+            let errpath = copyDirectory(_src, _dest);
+            if (errpath) {
+                return errpath;
+            }
         }
     });
 }
@@ -104,14 +111,13 @@ function copyDirectory(src: fs.PathLike, dest: fs.PathLike) {
 /**
  * 如果不存在 创建目录
  * @param {String} dir 
+ * @returns 目录可用返回true
  */
-function mkdirSync(dir: fs.PathLike) {
+function mymkdir(dir: fs.PathLike): boolean {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir);
-    } else {
-        if (!fs.statSync(dir).isDirectory()) {
-            fs.unlinkSync(dir); //不是目录 先删除
-            fs.mkdirSync(dir);
-        }
+    } else if (!fs.statSync(dir).isDirectory) {
+        return false;
     }
+    return true;
 }
