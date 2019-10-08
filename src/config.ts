@@ -16,9 +16,18 @@ function getConfig(): any | undefined {
     let uri: vscode.Uri | undefined = getWorkspaceRoot();
     if (uri) {
         uri = vscode.Uri.parse(uri + CONFIG_FILENAME);
-        let buffer = fs.readFileSync(uri.fsPath, { encoding: 'UTF-8' });
-        let json = JSON.parse(buffer.toString());
-        return json;
+        let buffer: string;
+        try {
+            buffer = fs.readFileSync(uri.fsPath, { encoding: 'UTF-8' }).toString();
+        } catch {
+            buffer = '{}';
+        }
+        try {
+            let json = JSON.parse(buffer);
+            return json;
+        } catch {
+            vscode.window.showErrorMessage('读取配置文件失败');
+        }
     }
 }
 
@@ -30,18 +39,32 @@ function saveConfig(config: any) {
     }
 }
 
+function myArrayAdd(array: any, item: any) {
+    for (let i in array) {
+        if (array[i] == item) {
+            return;
+        }
+    }
+    array.push(item);
+}
+
+function myArrayDel(array: any, item: any) {
+    if (array) {
+        let index = array.indexOf(item);
+        while (index != -1) {
+            array.splice(index, 1);
+            index = array.indexOf(item);
+        }
+    }
+}
+
 export function addInclude(include: string): boolean {
     let config = getConfig();
     if (config) {
         if (!config.includes) {
             config.includes = [];
         }
-        for (let i in config.includes) {
-            if (config.includes[i] == include) {
-                return true;
-            }
-        }
-        config.includes.push(include);
+        myArrayAdd(config.includes, include);
         saveConfig(config);
         return true;
     }
@@ -51,14 +74,7 @@ export function addInclude(include: string): boolean {
 export function rmInclude(include: string): boolean {
     let config = getConfig();
     if (config) {
-        if (!config.includes) {
-            return true;
-        }
-        for (let i in config.includes) {
-            if (config.includes[i] == include) {
-                config.includes.splice(i, 1);
-            }
-        }
+        myArrayDel(config.includes, include);
         saveConfig(config);
         return true;
     }
@@ -70,6 +86,39 @@ export function getInclude(): string[] {
     if (config) {
         if (config.includes) {
             return config.includes;
+        }
+    }
+    return [];
+}
+
+export function addDefine(define: string): boolean {
+    let config = getConfig();
+    if (config) {
+        if (!config.defines) {
+            config.defines = [];
+        }
+        myArrayAdd(config.defines, define);
+        saveConfig(config);
+        return true;
+    }
+    return false;
+}
+
+export function rmDefine(define: string): boolean {
+    let config = getConfig();
+    if (config) {
+        myArrayDel(config.defines, define);
+        saveConfig(config);
+        return true;
+    }
+    return false;
+}
+
+export function getDefine(): string[] {
+    let config = getConfig();
+    if (config) {
+        if (config.defines) {
+            return config.defines;
         }
     }
     return [];
