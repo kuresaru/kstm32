@@ -123,3 +123,36 @@ export function getDefine(): string[] {
     }
     return [];
 }
+
+export function addSource(source: string): boolean {
+    let config = getConfig();
+    if (config) {
+        if (!config.sources) {
+            config.sources = [];
+        }
+        myArrayAdd(config.sources, source);
+        saveConfig(config);
+        return true;
+    }
+    return false;
+}
+
+export function rmSource(source: string): boolean {
+    let config = getConfig();
+    if (config) {
+        myArrayDel(config.sources, source);
+        saveConfig(config);
+        return true;
+    }
+    return false;
+}
+
+export function getSource(): string[] {
+    let config = getConfig();
+    if (config) {
+        if (config.sources) {
+            return config.sources;
+        }
+    }
+    return [];
+}

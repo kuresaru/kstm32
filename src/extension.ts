@@ -5,10 +5,10 @@ import * as vscode from 'vscode';
 import * as create from './commands/create';
 import * as configure from './commands/configure';
 
-import * as tpStdPeriph from './treeProviders/tpStdPeriph';
-import * as tpCdefs from './treeProviders/tpCDefs';
-import * as tpCincludes from './treeProviders/tpCIncludes';
-import * as tpCsources from './treeProviders/tpCSources';
+import * as tpStdPeriph from './treeProviders/stdperiph';
+import * as tpCdefs from './treeProviders/defines';
+import * as tpCincludes from './treeProviders/includes';
+import * as tpCsources from './treeProviders/sources';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
