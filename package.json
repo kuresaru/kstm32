@@ -59,81 +59,23 @@
 		],
 		"configuration": [
 			{
-				"title": "暮光小猿STM32小工具 - 全局设置",
+				"title": "暮光小猿STM32小工具",
 				"properties": {
 					"kstm32.gccToolchainHome": {
 						"type": "string",
-						"description": "gcc工具链的路径",
-						"default": "D:\\DevTools\\GNU Tools ARM Embedded\\4.7 2013q1"
+						"description": "gcc工具链的路径"
 					},
 					"kstm32.libs.STM32f10xStdPeriph": {
 						"type": "string",
-						"description": "STM32F10x 标准外设库路径 (包含CMSIS和STM32F10x_StdPeriph_Driver目录)",
-						"default": "D:\\Things\\MCU\\STM32_Libs\\STM32F10x_StdPeriph_Lib_V3.5.0\\Libraries"
+						"description": "STM32F10x 标准外设库路径 (包含CMSIS和STM32F10x_StdPeriph_Driver目录)"
 					},
 					"kstm32.libs.STM32f4xxStdPeriph": {
 						"type": "string",
-						"description": "STM32F4xx 标准外设库路径 (包含CMSIS和STM32F4xx_StdPeriph_Driver目录)",
-						"default": "D:\\Things\\MCU\\STM32_Libs\\STM32F4xx_DSP_StdPeriph_Lib_V1.8.0\\Libraries"
+						"description": "STM32F4xx 标准外设库路径 (包含CMSIS和STM32F4xx_StdPeriph_Driver目录)"
 					},
 					"kstm32.libs.templates": {
 						"type": "string",
-						"description": "自定义工程模板",
-						"default": "D:\\Things\\MCU\\kstm32_template"
-					}
-				}
-			},
-			{
-				"title": "暮光小猿STM32小工具 - 项目设置",
-				"properties": {
-					"kstm32.projectName": {
-						"type": "string",
-						"description": "项目名称",
-						"default": "KSTM32_Project"
-					},
-					"kstm32.projectType": {
-						"type": "string",
-						"description": "项目类型",
-						"enum": [
-							"STM32F103C8Tx",
-							"STM32F103RCTx",
-							"STM32F407ZGTx"
-						]
-					},
-					"kstm32.csources": {
-						"type": "array",
-						"description": "C源",
-						"default": []
-					},
-					"kstm32.cincludes": {
-						"type": "array",
-						"description": "C包含路径",
-						"default": []
-					},
-					"kstm32.cdefs": {
-						"type": "array",
-						"description": "C预定义",
-						"default": []
-					},
-					"kstm32.asmSources": {
-						"type": "array",
-						"description": "汇编源",
-						"default": []
-					},
-					"kstm32.autoConfigSources": {
-						"type": "boolean",
-						"description": "自动管理项目资源",
-						"default": true
-					},
-					"kstm32.autoConfigParams": {
-						"type": "array",
-						"description": "自动管理项目资源需要排除的路径",
-						"default": []
-					},
-					"kstm32.useLib": {
-						"type": "array",
-						"description": "需要使用的标准外设库名",
-						"default": []
+						"description": "自定义工程模板"
 					}
 				}
 			}
@@ -195,7 +137,6 @@
 		"test": "node ./out/test/runTest.js"
 	},
 	"dependencies": {
-		"text-encoding": "^0.7.0"
 	},
 	"devDependencies": {
 		"@types/glob": "^7.1.1",
@@ -206,7 +147,6 @@
 		"mocha": "^6.1.4",
 		"typescript": "^3.3.1",
 		"tslint": "^5.12.1",
-		"vscode-test": "^1.0.0-next.0",
-		"text-encoding": "^0.7.0"
+		"vscode-test": "^1.0.0-next.0"
 	}
 }

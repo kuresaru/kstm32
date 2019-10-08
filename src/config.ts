@@ -3,6 +3,12 @@ import * as fs from 'fs';
 
 const CONFIG_FILENAME = '/kstm32.json';
 
+type Kstm32Config = {
+    includes?: string[];
+    defines?: string[];
+    sources?: string[];
+};
+
 export function getWorkspaceRoot(): vscode.Uri | undefined {
     let workspaceFolders = vscode.workspace.workspaceFolders;
     if (workspaceFolders) {
@@ -12,7 +18,7 @@ export function getWorkspaceRoot(): vscode.Uri | undefined {
     }
 }
 
-function getConfig(): any | undefined {
+function getConfig(): Kstm32Config | undefined {
     let uri: vscode.Uri | undefined = getWorkspaceRoot();
     if (uri) {
         uri = vscode.Uri.parse(uri + CONFIG_FILENAME);
@@ -31,7 +37,7 @@ function getConfig(): any | undefined {
     }
 }
 
-function saveConfig(config: any) {
+function saveConfig(config: Kstm32Config) {
     let uri: vscode.Uri | undefined = getWorkspaceRoot();
     if (uri) {
         uri = vscode.Uri.parse(uri + CONFIG_FILENAME);
