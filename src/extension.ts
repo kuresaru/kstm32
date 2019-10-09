@@ -5,6 +5,7 @@ import * as vscode from 'vscode';
 import * as create from './commands/create';
 import * as configure from './commands/configure';
 import * as make from './commands/make';
+import * as openocd from './commands/openocd';
 
 import * as tpStdPeriph from './treeProviders/stdperiph';
 import * as tpCdefs from './treeProviders/defines';
@@ -24,6 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
 	create.register(context);
 	configure.register(context);
 	make.register(context);
+	openocd.register(context);
 	
 	tpStdPeriph.registerCmd(context);
 	tpCdefs.registerCmd(context);

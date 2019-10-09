@@ -64,6 +64,11 @@
 				"command": "kstm32.make",
 				"title": "编译(暂时有问题）",
 				"category": "KSTM32.make"
+			},
+			{
+				"command": "kstm32.ocd",
+				"title": "运行OpenOCD",
+				"category": "KSTM32.openocd"
 			}
 		],
 		"configuration": [
@@ -77,6 +82,10 @@
 					"kstm32.make": {
 						"type": "string",
 						"description": "make的路径(一般为Windows配置)"
+					},
+					"kstm32.openocd": {
+						"type": "string",
+						"description": "OpenOCD的根路径"
 					},
 					"kstm32.libs.STM32F10xStdPeriph": {
 						"type": "string",
