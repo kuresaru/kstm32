@@ -30,17 +30,30 @@ function configure(root: vscode.Uri) {
         // autoconf
         let sources: string[] = [];
         let includes: string[] = [];
+        let asm: string[] = [];
         rlsDir(root.fsPath, '/src').forEach(filename => {
             if (filename.endsWith('.c') || filename.endsWith('.C')) {
                 sources.push(filename);
             } else if (filename.endsWith('.h') || filename.endsWith('.H')) {
                 config.myArrayAdd(includes, filename.substring(0, filename.lastIndexOf('/')));
+            } else if (filename.endsWith('.s') || filename.endsWith('.S')) {
+                asm.push(filename);
             }
         });
         if (libPath) {
+            // StdPeriph
+            includes.push(`${(libPath || {}).stdperiph}/inc`.replace(/\\/g, '/'));
             (conf.useLib || []).forEach(lib => {
                 sources.push(`${(libPath || {}).stdperiph}/src/${lib}`.replace(/\\/g, '/'));
             });
+            // core
+            let type = conf.type || '';
+            if (type.startsWith('STM32F103')) {
+                sources.push(`${(libPath || {}).root}/CMSIS/CM3/CoreSupport/core_cm3.c`.replace(/\\/g, '/'));
+                includes.push(`${(libPath || {}).root}/CMSIS/CM3/CoreSupport`.replace(/\\/g, '/'));
+            } else if (type.startsWith('STM32F407')) {
+                // TODO 407
+            }
         }
 
         // sources
@@ -70,6 +83,14 @@ function configure(root: vscode.Uri) {
             makefile = makefile.replace(miarr[0], `#--kstm32-autoconf:includes\r\n${miarr[1]} =${makefileIncludes}`);
         }
         cppcfg.update('includePath', includes, vscode.ConfigurationTarget.Workspace);
+
+        // asm
+        let makefileAsm: string = '';
+        asm.forEach(a => makefileAsm = `${makefileAsm} \\\r\n${a}`);
+        let maarr = makefile.match(/#--kstm32-autoconf:asm\r?\n([a-zA-Z0-9_]+) *=(.*\\\r?\n)*.*/);
+        if (maarr) {
+            makefile = makefile.replace(maarr[0], `#--kstm32-autoconf:asm\r\n${maarr[1]} =${makefileAsm}`)
+        }
 
         // write Makefile
         fs.writeFile(makefilePath, makefile, { encoding: 'UTF-8' }, err => {
