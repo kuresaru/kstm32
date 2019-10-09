@@ -75,19 +75,23 @@ export function getLibPath(kstm32cfg: vscode.WorkspaceConfiguration, cfg: config
     if (type) {
         if (type.match(/STM32F10.*/)) {
             libPath = kstm32cfg.get('libs.STM32F10xStdPeriph');
-            if (libPath) {
+            if (libPath && fs.existsSync(libPath) && fs.statSync(libPath).isDirectory()) {
                 result = {
                     root: libPath,
                     stdperiph: `${libPath}/STM32F10x_StdPeriph_Driver`
                 };
+            } else {
+                vscode.window.showWarningMessage('错误的库路径配置');
             }
         } else if (type.match(/STM32F4.*/)) {
             libPath = kstm32cfg.get('libs.STM32F4xxStdPeriph');
-            if (libPath) {
+            if (libPath && fs.existsSync(libPath) && fs.statSync(libPath).isDirectory()) {
                 result = {
                     root: libPath,
                     stdperiph: `${libPath}/STM32F4xx_StdPeriph_Driver`
                 };
+            } else {
+                vscode.window.showWarningMessage('错误的库路径配置');
             }
         }
     }

@@ -73,16 +73,19 @@ function configure(root: vscode.Uri) {
                 sources.push(`${(libPath || {}).root}/CMSIS/CM3/CoreSupport/core_cm3.c`.replace(/\\/g, '/'));
                 includes.push(`${(libPath || {}).root}/CMSIS/CM3/CoreSupport`.replace(/\\/g, '/'));
             } else if (type.startsWith('STM32F407')) {
-                // TODO 407
+                includes.push(`${(libPath || {}).root}/CMSIS/Include`.replace(/\\/g, '/'));
             }
         }
         // type define
-        if (type_s == '8') {
-            defines.push('STM32F10X_MD');
-        } else if (type_s == 'C') {
-            defines.push('STM32F10X_HD');
+        if (type.startsWith('STM32F10')) {
+            if (type_s == '8') {
+                defines.push('STM32F10X_MD');
+            } else if (type_s == 'C') {
+                defines.push('STM32F10X_HD');
+            }
+        } else if (type.startsWith('STM32F407')) {
+            defines.push('STM32F40_41xxx');
         }
-
 
         // sources
         let makefileSources: string = '';
