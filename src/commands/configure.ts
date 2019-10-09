@@ -26,12 +26,16 @@ function configure(root: vscode.Uri) {
         }
 
         let libPath: stdperiph.LibPath | undefined = stdperiph.getLibPath(kstm32cfg, conf);
+        let type = conf.type || '';
+        let type_s = type.substr(10, 11);
 
         // autoconf
         let sources: string[] = [];
         let includes: string[] = [];
+        let defines: string[] = [];
         let asm: string[] = [];
-        rlsDir(root.fsPath, '/src').forEach(filename => {
+        // project c h s
+        lsRecursion(root.fsPath, '/src').forEach(filename => {
             if (filename.endsWith('.c') || filename.endsWith('.C')) {
                 sources.push(filename);
             } else if (filename.endsWith('.h') || filename.endsWith('.H')) {
@@ -40,14 +44,18 @@ function configure(root: vscode.Uri) {
                 asm.push(filename);
             }
         });
+        // libs
         if (libPath) {
             // StdPeriph
-            includes.push(`${(libPath || {}).stdperiph}/inc`.replace(/\\/g, '/'));
-            (conf.useLib || []).forEach(lib => {
-                sources.push(`${(libPath || {}).stdperiph}/src/${lib}`.replace(/\\/g, '/'));
-            });
+            let useLib = conf.useLib || [];
+            if (useLib.length > 0) {
+                useLib.forEach(lib => {
+                    sources.push(`${(libPath || {}).stdperiph}/src/${lib}`.replace(/\\/g, '/'));
+                });
+                defines.push('USE_STDPERIPH_DRIVER');
+                includes.push(`${(libPath || {}).stdperiph}/inc`.replace(/\\/g, '/'));
+            }
             // core
-            let type = conf.type || '';
             if (type.startsWith('STM32F103')) {
                 sources.push(`${(libPath || {}).root}/CMSIS/CM3/CoreSupport/core_cm3.c`.replace(/\\/g, '/'));
                 includes.push(`${(libPath || {}).root}/CMSIS/CM3/CoreSupport`.replace(/\\/g, '/'));
@@ -55,6 +63,13 @@ function configure(root: vscode.Uri) {
                 // TODO 407
             }
         }
+        // type define
+        if (type_s == '8') {
+            defines.push('STM32F10X_MD');
+        } else if (type_s == 'C') {
+            defines.push('STM32F10X_HD');
+        }
+
 
         // sources
         let makefileSources: string = '';
@@ -65,7 +80,7 @@ function configure(root: vscode.Uri) {
         }
 
         // defines
-        let defines = conf.defines || [];
+        (conf.defines || []).forEach(define => defines.push(define));
         let makefileDefines: string = '';
         defines.forEach(define => makefileDefines = `${makefileDefines} \\\r\n-D${define}`);
         let mdarr = makefile.match(/#--kstm32-autoconf:defines\r?\n([a-zA-Z0-9_]+) *=(.*\\\r?\n)*.*/);
@@ -99,111 +114,12 @@ function configure(root: vscode.Uri) {
             }
         });
     });
-
-    // let encoding = require('text-encoding');
-    // let makefiles = require('../templates/makefiles');
-
-    // configSources();
-    //写入makefile
-    // let makefileUri: vscode.Uri = vscode.Uri.parse(projectUri + '/Makefile');
-    // let makefileContent: String = makefiles.f10x;
-    // let cfg: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('kstm32');
-    // let projectName = <string>cfg.get('projectName');
-    // let projectType = <string>cfg.get('projectType');
-    // let useLib = <string[]>cfg.get('useLib');
-    // let gcc = (<string>cfg.get('gccToolchainHome'));
-    // let csources: string = '';
-    // (<string[]>cfg.get('csources')).forEach(source => csources += `${source} `);
-    // let cincludes: string = '';
-    // (<string[]>cfg.get('cincludes')).forEach(include => cincludes += `-I${include} `);
-    // let cdefs: string = '';
-    // (<string[]>cfg.get('cdefs')).forEach(define => cdefs += `-D${define} `);
-    // let asmSources: string = '';
-    // (<string[]>cfg.get('asmSources')).forEach(source => asmSources += `${source} `);
-    // //加入库文件
-    // let libs: string;
-    // switch (projectType) {
-    //     case 'STM32F103C8Tx':
-    //         libs = <string>cfg.get('libs.STM32f10xStdPeriph');
-    //         asmSources += `${libs}/CMSIS/CM3/DeviceSupport/ST/STM32F10x/startup/gcc_ride7/startup_stm32f10x_md.s `;
-    //         csources += `${libs}/CMSIS/CM3/CoreSupport/core_cm3.c `;
-    //         useLib.forEach(name => csources += `${libs}/STM32F10x_StdPeriph_Driver/src/${name}.c `);
-    //         cincludes += `-I${vscode.Uri.file(libs + '/STM32F10x_StdPeriph_Driver/inc').fsPath} -I${vscode.Uri.file(libs + '/CMSIS/CM3/CoreSupport').fsPath} `;
-    //         break;
-    //     case 'STM32F103RCTx':
-    //         libs = <string>cfg.get('libs.STM32f10xStdPeriph');
-    //         asmSources += `${libs}/CMSIS/CM3/DeviceSupport/ST/STM32F10x/startup/gcc_ride7/startup_stm32f10x_hd.s `;
-    //         csources += `${libs}/CMSIS/CM3/CoreSupport/core_cm3.c `;
-    //         useLib.forEach(name => csources += `${libs}/STM32F10x_StdPeriph_Driver/src/${name}.c `);
-    //         cincludes += `-I${vscode.Uri.file(libs + '/STM32F10x_StdPeriph_Driver/inc').fsPath} -I${vscode.Uri.file(libs + '/CMSIS/CM3/CoreSupport').fsPath} `;
-    //         break;
-    // }
-    // makefileContent = makefileContent
-    //     .replace(/\{kstm32\:target\}/g, projectName)
-    //     .replace(/\{kstm32\:csources\}/g, csources.replace(/\\/g, '/'))
-    //     .replace(/\{kstm32\:cincludes\}/g, cincludes.replace(/\\/g, '/'))
-    //     .replace(/\{kstm32\:cdefs\}/g, cdefs)
-    //     .replace(/\{kstm32\:asmsources\}/g, asmSources.replace(/\\/g, '/'))
-    //     .replace(/\{kstm32\:gccpath\}/g, `${gcc}/bin`.replace(/\\/g, '/'))
-    //     .replace(/\{kstm32\:prefix\}/g, 'arm-none-eabi-');
-    // vscode.workspace.fs.writeFile(makefileUri, new encoding.TextEncoder('utf-8').encode(makefileContent));
 }
-
-// function configSources() {
-//     let root = vscode.workspace.rootPath;
-//     if (!root) {
-//         return;
-//     }
-//     let cfg = vscode.workspace.getConfiguration('kstm32');
-//     let autoConfigEnable = cfg.get('autoConfigSources');
-//     if (autoConfigEnable) {
-//         let cppcfg = vscode.workspace.getConfiguration('C_Cpp.default');
-//         let contents = rlsDir(root, '');
-//         let excludes = cfg.get("autoConfigParams");
-//         let libs = cfg.get('libs.STM32f10xStdPeriph');
-//         let gcc = (<string>cfg.get('gccToolchainHome'));
-//         let cincludesNew: String[] = [];
-//         let cincludesNewForCext: String[] = [];
-//         let csourcesNew: String[] = [];
-//         let asmsourcesNew: String[] = [];
-
-//         contents.forEach(content => {
-//             //如果不在排除列表里 或者根本没有排除列表 就加入
-//             if (!excludes || (<String[]>excludes).indexOf(content) == -1) {
-//                 if (content.endsWith('/')) {
-//                     content = content.substring(0, content.length - 1);
-//                     let str = fs.readdirSync(root + '/' + content).join(',') + ','; //[a,b,c]->"a,b,c,"
-//                     //只有目录里有.h文件才会作为包含目录
-//                     if (str.indexOf('.h,') != -1) {
-//                         cincludesNew.push(content);
-//                         cincludesNewForCext.push('{workspaceFolder}/' + content + '/*');
-//                     }
-//                 } else if (content.endsWith('.c')) {
-//                     csourcesNew.push(content);
-//                 } else if (content.endsWith('.s')) {
-//                     asmsourcesNew.push(content);
-//                 }
-//             }
-//         });
-
-//         cfg.update('cincludes', cincludesNew, vscode.ConfigurationTarget.Workspace);
-//         cfg.update('csources', csourcesNew, vscode.ConfigurationTarget.Workspace);
-//         cfg.update('asmSources', asmsourcesNew, vscode.ConfigurationTarget.Workspace);
-
-//         cincludesNewForCext.push(vscode.Uri.file(libs + '/STM32F10x_StdPeriph_Driver/inc/*').fsPath);
-//         // cincludesNewForCext.push(vscode.Uri.file(`${gcc}/arm-none-eabi/include/*`).fsPath);
-//         cincludesNewForCext.push(vscode.Uri.file(libs + '/CMSIS/CM3/CoreSupport/*').fsPath);
-
-//         cppcfg.update('includePath', cincludesNewForCext, vscode.ConfigurationTarget.Workspace);
-//         cppcfg.update('defines', cfg.get('cdefs'), vscode.ConfigurationTarget.Workspace);
-//         cppcfg.update('compilerPath', vscode.Uri.file(`${gcc}/bin/arm-none-eabi-gcc`).fsPath, vscode.ConfigurationTarget.Workspace);
-//     }
-// }
 
 /**
  * 递归列目录内容
  */
-function rlsDir(basePath: string, subPath?: string): string[] {
+function lsRecursion(basePath: string, subPath?: string): string[] {
     let result: string[] = [];
     fs.readdirSync(`${basePath}${subPath}`).forEach(filename => {
         if (filename != '.vscode') {
@@ -213,7 +129,7 @@ function rlsDir(basePath: string, subPath?: string): string[] {
                 result.push(r);
             } else if (stat.isDirectory()) {
                 result.push(r + '/');
-                rlsDir(basePath, subPath + '/' + filename).forEach(_name => {
+                lsRecursion(basePath, subPath + '/' + filename).forEach(_name => {
                     result.push(_name);
                 });
             }

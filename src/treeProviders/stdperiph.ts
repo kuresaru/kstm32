@@ -73,7 +73,7 @@ export function getLibPath(kstm32cfg: vscode.WorkspaceConfiguration, cfg: config
     let libPath: string | undefined;
     let result: LibPath | undefined;
     if (type) {
-        if (type.match(/STM32F10...../)) {
+        if (type.match(/STM32F10.*/)) {
             libPath = kstm32cfg.get('libs.STM32F10xStdPeriph');
             if (libPath) {
                 result = {
@@ -81,7 +81,7 @@ export function getLibPath(kstm32cfg: vscode.WorkspaceConfiguration, cfg: config
                     stdperiph: `${libPath}/STM32F10x_StdPeriph_Driver`
                 };
             }
-        } else if (type.match(/STM32F4....../)) {
+        } else if (type.match(/STM32F4.*/)) {
             libPath = kstm32cfg.get('libs.STM32F4xxStdPeriph');
             if (libPath) {
                 result = {

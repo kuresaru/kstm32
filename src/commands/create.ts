@@ -2,8 +2,6 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as config from '../config';
 
-const vfs: vscode.FileSystem = vscode.workspace.fs;
-
 export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('kstm32.create', function () {
         let workspaceFolders = vscode.workspace.workspaceFolders;
@@ -21,43 +19,43 @@ export function register(context: vscode.ExtensionContext) {
 
 function create(projectUri: vscode.Uri) {
     vscode.window.showQuickPick([
-        "STM32F103C8Tx",
-        "STM32F103RCTx",
-        "STM32F407ZGTx"
-    ]).then(result => {
-        let cd = vscode.workspace.getConfiguration('C_Cpp.default');
-        cd.update('intelliSenseMode', 'gcc-x64', vscode.ConfigurationTarget.Workspace);
-        cd.update('cStandard', 'c11', vscode.ConfigurationTarget.Workspace);
-        if (result) {
-            //找模板目录
-            let templatePath = vscode.Uri.file(vscode.workspace.getConfiguration('kstm32.libs').get('templates') + '/' + result).fsPath;
+        "STM32F103x8",
+        "STM32F103xC",
+        "STM32F407xG"
+    ]).then(type => {
+        if (type) {
+            let cd = vscode.workspace.getConfiguration('C_Cpp.default');
+            cd.update('intelliSenseMode', 'gcc-x64', vscode.ConfigurationTarget.Workspace);
+            cd.update('cStandard', 'c11', vscode.ConfigurationTarget.Workspace);
+
+            let type_t = type.substr(0, 9);
+            let type_s = type.substr(10, 11);
+
+            let templatePath: string = vscode.workspace.getConfiguration('kstm32').get('libs.templates') || '';
+            templatePath = `${templatePath}/${type_t}`;
             if (fs.existsSync(templatePath) && fs.statSync(templatePath).isDirectory()) {
-                let templates = fs.readdirSync(templatePath);
-                if (templates.length == 0) {
-                    vscode.window.showErrorMessage(templatePath + '中无模板');
-                    //如果不存在 创建源码目录(./src)
-                    vfs.createDirectory(vscode.Uri.parse(projectUri + '/src'));
-                    return;
-                }
-                //选择一个模板
-                vscode.window.showQuickPick(templates).then(name => {
-                    if (!name) {
-                        vscode.window.showInformationMessage('操作被取消');
-                        return;
+                let templates: string[] = [];
+                fs.readdirSync(templatePath).forEach(template => {
+                    if (!template.startsWith('_')) {
+                        templates.push(template);
                     }
-                    //把模板内容复制到当前工程目录下
-                    let srcPath = vscode.Uri.file(templatePath + '/' + name).fsPath;
-                    let errpath = copyDirectory(srcPath, projectUri.fsPath);
-                    if (errpath) {
-                        vscode.window.showErrorMessage(`创建目录${errpath}失败`);
-                        return;
-                    }
-                    createConfig(result);
-                    vscode.commands.executeCommand('kstm32.refresh');
-                    vscode.window.showInformationMessage('初始化完成');
                 });
+                if (templates.length == 0) {
+                    vscode.window.showErrorMessage(`${templatePath}中无模板`);
+                } else {
+                    vscode.window.showQuickPick(templates).then(templateName => {
+                        if (templateName) {
+                            copyTemplate(projectUri.fsPath, templatePath, type_s, templateName);
+                            createConfig(type);
+                            vscode.commands.executeCommand('kstm32.refresh');
+                            vscode.window.showInformationMessage('初始化完成');
+                        } else {
+                            vscode.window.showInformationMessage('操作被取消');
+                        }
+                    });
+                }
             } else {
-                vscode.window.showWarningMessage('没有找到模板目录' + templatePath);
+                vscode.window.showErrorMessage(`模板路径配置不正确`);
             }
         } else {
             vscode.window.showInformationMessage('操作被取消');
@@ -65,48 +63,69 @@ function create(projectUri: vscode.Uri) {
     });
 }
 
+function copyTemplate(projectPath: string, templatePath: string, type_s: string, templateName: string) {
+    copyRecursion(`${templatePath}/${templateName}`, projectPath);
+    copyRecursion(`${templatePath}/_${type_s}`, projectPath);
+}
+
 function createConfig(type: string) {
     let conf = config.getConfig();
     if (conf) {
         conf.type = type;
-        conf.defines = ['USE_STDPERIPH_DRIVER'];
-        switch (type) {
-            case 'STM32F103C8Tx':
-                conf.defines.push('STM32F10X_MD');
-                break;
-            case 'STM32F103RCTx':
-                conf.defines.push('STM32F10X_HD');
-                break;
-        }
         config.saveConfig(conf);
     }
 }
 
-/**
- * 递归复制目录
- * @returns 返回出错的目录
- */
-function copyDirectory(src: fs.PathLike, dest: fs.PathLike): string | undefined {
-    let content: String[] = fs.readdirSync(src);
-    if (!mymkdir(dest)) {
-        return dest.toString();
-    }
-    content.forEach(filename => {
-        let _src = vscode.Uri.file(src + '/' + filename).fsPath;
-        let _dest = vscode.Uri.file(dest + '/' + filename).fsPath;
-        let stats = fs.statSync(_src);
-        if (stats.isFile()) {
-            let readStream = fs.createReadStream(_src);
-            let writeStream = fs.createWriteStream(_dest);
-            readStream.pipe(writeStream);
-        } else if (stats.isDirectory) {
-            let errpath = copyDirectory(_src, _dest);
-            if (errpath) {
-                return errpath;
+function copyRecursion(src: string, dest: string, overwrite: boolean = false) {
+    if (fs.existsSync(src)) {
+        let stat = fs.statSync(src);
+        if (stat.isDirectory()) {
+            if (!mymkdir(dest)) {
+                vscode.window.showWarningMessage(`目标${dest}不是目录`);
+                return;
             }
+            let contents: string[] = fs.readdirSync(src);
+            contents.forEach(content => copyRecursion(`${src}/${content}`, `${dest}/${content}`, overwrite));
+        } else if (stat.isFile()) {
+            let exists = fs.existsSync(dest);
+            if (exists && !overwrite) {
+                return;
+            }
+            if (exists) {
+                fs.unlinkSync(dest);
+            }
+            let readStream = fs.createReadStream(src)
+            let writeStream = fs.createWriteStream(dest);
+            readStream.pipe(writeStream);
         }
-    });
+    }
 }
+
+// /**
+//  * 递归复制目录
+//  * @returns 返回出错的目录
+//  */
+// function copyDirectory(src: fs.PathLike, dest: fs.PathLike): string | undefined {
+//     let content: String[] = fs.readdirSync(src);
+//     if (!mymkdir(dest)) {
+//         return dest.toString();
+//     }
+//     content.forEach(filename => {
+//         let _src = vscode.Uri.file(src + '/' + filename).fsPath;
+//         let _dest = vscode.Uri.file(dest + '/' + filename).fsPath;
+//         let stats = fs.statSync(_src);
+//         if (stats.isFile()) {
+//             let readStream = fs.createReadStream(_src);
+//             let writeStream = fs.createWriteStream(_dest);
+//             readStream.pipe(writeStream);
+//         } else if (stats.isDirectory) {
+//             let errpath = copyDirectory(_src, _dest);
+//             if (errpath) {
+//                 return errpath;
+//             }
+//         }
+//     });
+// }
 
 /**
  * 如果不存在 创建目录
@@ -116,7 +135,7 @@ function copyDirectory(src: fs.PathLike, dest: fs.PathLike): string | undefined 
 function mymkdir(dir: fs.PathLike): boolean {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir);
-    } else if (!fs.statSync(dir).isDirectory) {
+    } else if (!fs.statSync(dir).isDirectory()) {
         return false;
     }
     return true;
