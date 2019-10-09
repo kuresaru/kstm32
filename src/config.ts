@@ -4,6 +4,7 @@ import * as fs from 'fs';
 const CONFIG_FILENAME = '/kstm32.json';
 
 export type Kstm32Config = {
+    name?: string;
     type?: string;
     includes?: string[];
     defines?: string[];

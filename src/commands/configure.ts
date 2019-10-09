@@ -104,7 +104,13 @@ function configure(root: vscode.Uri) {
         asm.forEach(a => makefileAsm = `${makefileAsm} \\\r\n${a}`);
         let maarr = makefile.match(/#--kstm32-autoconf:asm\r?\n([a-zA-Z0-9_]+) *=(.*\\\r?\n)*.*/);
         if (maarr) {
-            makefile = makefile.replace(maarr[0], `#--kstm32-autoconf:asm\r\n${maarr[1]} =${makefileAsm}`)
+            makefile = makefile.replace(maarr[0], `#--kstm32-autoconf:asm\r\n${maarr[1]} =${makefileAsm}`);
+        }
+
+        // name
+        let mnarr = makefile.match(/#--kstm32-autoconf:name\r?\n([a-zA-Z0-9_]+) *=(.*\\\r?\n)*.*/);
+        if (mnarr && conf.name) {
+            makefile = makefile.replace(mnarr[0], `#--kstm32-autoconf:name\r\n${mnarr[1]} = ${conf.name}`);
         }
 
         // write Makefile

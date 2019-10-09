@@ -71,6 +71,14 @@ function copyTemplate(projectPath: string, templatePath: string, type_s: string,
 function createConfig(type: string) {
     let conf = config.getConfig();
     if (conf) {
+        let name: string | vscode.Uri | undefined = config.getWorkspaceRoot();
+        if (name) {
+            name = name.fsPath.replace(/\\/g, '/');
+            conf.name = name.substring(name.lastIndexOf('/') + 1);
+        } else {
+            // 正常情况应该不会执行这个 做个备用
+            conf.name = type;
+        }
         conf.type = type;
         config.saveConfig(conf);
     }
