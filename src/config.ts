@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
+import * as os from 'os';
 
 const CONFIG_FILENAME = '/kstm32.json';
 
@@ -65,6 +66,32 @@ export function myArrayDel(array: any, item: any) {
         while (index != -1) {
             array.splice(index, 1);
             index = array.indexOf(item);
+        }
+    }
+}
+
+export function isWindows(): boolean {
+    return os.platform() == 'win32';
+}
+
+export function getExePath(name: string): string | undefined {
+    let syspath: string | undefined = process.env['PATH'];
+    if (syspath) {
+        let win = isWindows();
+        let splitSym = win ? ';' : ':';
+        let ext = win ? '.exe' : '';
+        let split: string[] = syspath.split(splitSym);
+        for (let pdsi in split) {
+            let pds = split[pdsi];
+            if (fs.existsSync(pds) && fs.statSync(pds).isDirectory()) {
+                let contents: string[] = fs.readdirSync(pds);
+                for (let pdi in contents) {
+                    let pd = contents[pdi];
+                    if (pd == `${name}${ext}`) {
+                        return pds;
+                    }
+                }
+            }
         }
     }
 }

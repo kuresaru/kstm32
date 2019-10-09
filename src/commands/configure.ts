@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as config from '../config';
 import * as stdperiph from '../treeProviders/stdperiph';
+import * as path from 'path';
 
 export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('kstm32.configure', function () {
@@ -16,9 +17,21 @@ function configure(root: vscode.Uri) {
     let kstm32cfg: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('kstm32');
     let cppcfg = vscode.workspace.getConfiguration('C_Cpp.default');
     let conf: config.Kstm32Config = config.getConfig() || {};
-
     let makefilePath = vscode.Uri.parse(`${root}/Makefile`).fsPath;
+    let gccHome: string | undefined = kstm32cfg.get('gccHome');
 
+    if (!gccHome) {
+        let gcc: string | undefined = config.getExePath(`arm-none-eabi-gcc`);
+        if (gcc) {
+            gccHome = path.join(gcc, '../');
+            gccHome = gccHome.substring(0, gccHome.length - 1);
+        } else {
+            vscode.window.showWarningMessage('没有找到正确的GCC根路径');
+        }
+    }
+
+    cppcfg.update('compilerPath', `${gccHome}/bin/arm-none-eabi-gcc${config.isWindows() ? '.exe' : ''}`.replace(/\\/g, '/'), vscode.ConfigurationTarget.Workspace);
+    
     fs.readFile(makefilePath, { encoding: 'UTF-8' }, (err, makefile) => {
         if (err) {
             vscode.window.showErrorMessage(`读取 ./Makefile 出错: ${err.message}`);
@@ -96,6 +109,9 @@ function configure(root: vscode.Uri) {
         let miarr = makefile.match(/#--kstm32-autoconf:includes\r?\n([a-zA-Z0-9_]+) *=(.*\\\r?\n)*.*/);
         if (miarr) {
             makefile = makefile.replace(miarr[0], `#--kstm32-autoconf:includes\r\n${miarr[1]} =${makefileIncludes}`);
+        }
+        if (gccHome) {
+            includes.push(`${gccHome}/arm-none-eabi/include/*`.replace(/\\/g, '/'));
         }
         cppcfg.update('includePath', includes, vscode.ConfigurationTarget.Workspace);
 

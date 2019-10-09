@@ -10,6 +10,8 @@ import * as tpCdefs from './treeProviders/defines';
 import * as tpCincludes from './treeProviders/includes';
 import * as tpCsources from './treeProviders/sources';
 
+import * as config from './config';
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {

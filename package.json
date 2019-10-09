@@ -61,9 +61,9 @@
 			{
 				"title": "暮光小猿STM32小工具",
 				"properties": {
-					"kstm32.gccToolchainHome": {
+					"kstm32.gccHome": {
 						"type": "string",
-						"description": "gcc工具链的路径"
+						"description": "gcc根路径"
 					},
 					"kstm32.libs.STM32F10xStdPeriph": {
 						"type": "string",
