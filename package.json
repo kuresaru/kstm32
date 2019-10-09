@@ -2,6 +2,7 @@
 	"name": "kstm32",
 	"displayName": "暮光小猿STM32小工具",
 	"description": "STM32小工具 - 暮光小猿wzt",
+	"publisher": "Kuresaru",
 	"keywords": [
 		"stm32",
 		"kstm32",
@@ -19,7 +20,11 @@
 		"Other"
 	],
 	"activationEvents": [
-		"*"
+		"onCommand:kstm32.create",
+		"workspaceContains:kstm32.json"
+	],
+	"extensionDependencies": [
+		"ms-vscode.cpptools"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -157,6 +162,10 @@
 		"watch": "tsc -watch -p ./",
 		"pretest": "npm run compile",
 		"test": "node ./out/test/runTest.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://git.scraft.top/kuresaru/kstm32.git"
 	},
 	"dependencies": {
 	},
