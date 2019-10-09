@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 
 import * as create from './commands/create';
 import * as configure from './commands/configure';
+import * as make from './commands/make';
 
 import * as tpStdPeriph from './treeProviders/stdperiph';
 import * as tpCdefs from './treeProviders/defines';
@@ -22,6 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	create.register(context);
 	configure.register(context);
+	make.register(context);
 	
 	tpStdPeriph.registerCmd(context);
 	tpCdefs.registerCmd(context);
@@ -37,11 +39,12 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.window.registerTreeDataProvider('kstm32.csources', tpcsources);
 
 	context.subscriptions.push(vscode.commands.registerCommand('kstm32.refresh', () => {
-		vscode.commands.executeCommand('kstm32.configure');
-		tpstdperiph.refresh();
-		tpcdefs.refresh();
-		tpcincludes.refresh();
-		tpcsources.refresh();
+		vscode.commands.executeCommand('kstm32.configure').then(() => {
+			tpstdperiph.refresh();
+			tpcdefs.refresh();
+			tpcincludes.refresh();
+			tpcsources.refresh();
+		});
 	}));
 }
 

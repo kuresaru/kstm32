@@ -26,27 +26,31 @@
 		"commands": [
 			{
 				"command": "kstm32.configure",
-				"title": "KSTM32: configure"
+				"title": "自动配置项目环境",
+				"category": "KSTM32.configure"
 			},
 			{
 				"command": "kstm32.create",
-				"title": "KSTM32: create new project"
+				"title": "创建新的工程",
+				"category": "KSTM32.create"
 			},
 			{
 				"command": "kstm32.refresh",
-				"title": "KSTM32: refresh",
+				"title": "刷新项目环境",
 				"icon": {
 					"dark": "src/svg/dark/refresh.svg",
 					"light": "src/svg/light/refresh.svg"
-				}
+				},
+				"category": "KSTM32.refresh"
 			},
 			{
 				"command": "kstm32.cdefs.add",
-				"title": "KSTM32: add c define",
+				"title": "加入新的define",
 				"icon": {
 					"dark": "src/svg/add.svg",
 					"light": "src/svg/add.svg"
-				}
+				},
+				"category": "KSTM32.define"
 			},
 			{
 				"command": "kstm32.cdefs.remove",
@@ -55,6 +59,11 @@
 			{
 				"command": "kstm32.toggleuselib",
 				"title": "使用/去除"
+			},
+			{
+				"command": "kstm32.make",
+				"title": "编译(暂时有问题）",
+				"category": "KSTM32.make"
 			}
 		],
 		"configuration": [
@@ -64,6 +73,10 @@
 					"kstm32.gccHome": {
 						"type": "string",
 						"description": "gcc根路径"
+					},
+					"kstm32.make": {
+						"type": "string",
+						"description": "make的路径(一般为Windows配置)"
 					},
 					"kstm32.libs.STM32F10xStdPeriph": {
 						"type": "string",
