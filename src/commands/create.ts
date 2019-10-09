@@ -69,13 +69,13 @@ function createConfig(type: string) {
     let conf = config.getConfig();
     if (conf) {
         conf.type = type;
-        conf.includes = ['USE_STDPERIPH_DRIVER'];
+        conf.defines = ['USE_STDPERIPH_DRIVER'];
         switch (type) {
             case 'STM32F103C8Tx':
-                conf.includes.push('STM32F10X_MD');
+                conf.defines.push('STM32F10X_MD');
                 break;
             case 'STM32F103RCTx':
-                conf.includes.push('STM32F10X_HD');
+                conf.defines.push('STM32F10X_HD');
                 break;
         }
         config.saveConfig(conf);

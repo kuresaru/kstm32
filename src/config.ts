@@ -7,8 +7,10 @@ export type Kstm32Config = {
     type?: string;
     includes?: string[];
     defines?: string[];
-    sources?: string[];
     useLib?: string[];
+    // TODO 外部资源导入 排除项目资源
+    sourceExcludes?: string[];
+    sourceIncludes?: string[];
 };
 
 export function getWorkspaceRoot(): vscode.Uri | undefined {
