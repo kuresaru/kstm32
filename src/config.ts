@@ -138,10 +138,9 @@ export function lsRecursionObject(basePath: string, subPath: string, filter: (fi
                 }
             });
             return content;
+        } else if (stat.isFile()) {
+            return ((!filter) || filter(subPath.substring(1))) ? null : '';
         }
     }
-    if (!filter) {
-        return null;
-    }
-    return filter(subPath.substring(1)) ? null : '';
+    return '';
 }

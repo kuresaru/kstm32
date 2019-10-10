@@ -23,6 +23,7 @@ export class Provider implements vscode.TreeDataProvider<Item> {
             let source = config.lsRecursionObject(root.fsPath, '/src', (filename) => {
                 return filename.endsWith('.c') || filename.endsWith('C');
             });
+            console.log(source);
             if (typeof source == 'object') {
                 this.sources_project = source;
             }
@@ -58,7 +59,16 @@ export class Provider implements vscode.TreeDataProvider<Item> {
         if (!element) {
             let ele: Item[] = [];
             for (let i in this.sources_project) {
-                ele.push(new Item(i, undefined, this.sources_project[i]));
+                let content = this.sources_project[i];
+                if (content) {
+                    ele.push(new Item(i, undefined, content));
+                }
+            }
+            for (let i in this.sources_project) {
+                let content = this.sources_project[i];
+                if (!content) {
+                    ele.push(new Item(i, undefined, content));
+                }
             }
             return Promise.resolve(ele);
         } else {
@@ -66,7 +76,16 @@ export class Provider implements vscode.TreeDataProvider<Item> {
             if (content) {
                 let ele: Item[] = [];
                 for (let i in content) {
-                    ele.push(new Item(i, element, content[i]));
+                    let content2 = content[i];
+                    if (content2) {
+                        ele.push(new Item(i, element, content[i]));
+                    }
+                }
+                for (let i in content) {
+                    let content2 = content[i];
+                    if (!content2) {
+                        ele.push(new Item(i, element, content[i]));
+                    }
                 }
                 return Promise.resolve(ele);
             }
