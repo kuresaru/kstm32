@@ -98,3 +98,50 @@ export function getExePath(name: string): string | undefined {
     }
     return undefined;
 }
+
+/**
+ * 递归列目录内容
+ */
+export function lsRecursion(basePath: string, subPath?: string, filter: (filename: string) => boolean = (f) => true): string[] {
+    let result: string[] = [];
+    fs.readdirSync(`${basePath}${subPath}`).forEach(filename => {
+        if (filename != '.vscode') {
+            let stat = fs.statSync(basePath + '/' + subPath + '/' + filename);
+            let r = (subPath + '/' + filename).substring(1);
+            if (stat.isFile() && filter(filename)) {
+                result.push(r);
+            } else if (stat.isDirectory()) {
+                lsRecursion(basePath, subPath + '/' + filename, filter).forEach(_name => {
+                    result.push(_name);
+                });
+            }
+        }
+    });
+    return result;
+}
+
+/**
+ * 递归列目录内容 返回对象
+ * 键是文件或目录名 值为目录内容
+ * 如果键是文件 值是null
+ */
+export function lsRecursionObject(basePath: string, subPath: string, filter: (filename: string) => boolean): object | string {
+    let root = `${basePath}${subPath}`;
+    if (fs.existsSync(root)) {
+        let stat = fs.statSync(root);
+        if (stat.isDirectory()) {
+            let content = {};
+            fs.readdirSync(root).forEach(filename => {
+                let obj = lsRecursionObject(root, `/${filename}`, filter);
+                if (typeof obj != 'string') {
+                    content[filename] = obj;
+                }
+            });
+            return content;
+        }
+    }
+    if (!filter) {
+        return null;
+    }
+    return filter(subPath.substring(1)) ? null : '';
+}

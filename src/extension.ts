@@ -7,12 +7,18 @@ import * as configure from './commands/configure';
 import * as make from './commands/make';
 import * as openocd from './commands/openocd';
 
-import * as tpStdPeriph from './treeProviders/stdperiph';
-import * as tpCdefs from './treeProviders/defines';
-import * as tpCincludes from './treeProviders/includes';
-import * as tpCsources from './treeProviders/sources';
+import * as stdperiph_i from './treeProviders/stdperiph';
+import * as defines_i from './treeProviders/defines';
+import * as includes_i from './treeProviders/includes';
+import * as sources_i from './treeProviders/sources';
 
 import * as config from './config';
+
+
+export let defines: defines_i.Provider = new defines_i.Provider();
+export let stdperiph: stdperiph_i.Provider = new stdperiph_i.Provider();
+export let includes: includes_i.Provider = new includes_i.Provider();
+export let sources: sources_i.Provider = new sources_i.Provider();
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -26,29 +32,23 @@ export function activate(context: vscode.ExtensionContext) {
 	configure.register(context);
 	make.register(context);
 	openocd.register(context);
-	
-	tpStdPeriph.registerCmd(context);
-	tpCdefs.registerCmd(context);
 
-	let tpstdperiph = new tpStdPeriph.TPStdPeriph();
-	let tpcdefs = new tpCdefs.TPCDefines();
-	let tpcincludes = new tpCincludes.TPCIncludes();
-	let tpcsources = new tpCsources.TPCSources();
+	stdperiph_i.registerCmd(context);
+	defines_i.registerCmd(context);
 
-	vscode.window.registerTreeDataProvider('kstm32.stdperiph', tpstdperiph);
-	vscode.window.registerTreeDataProvider('kstm32.cdefs', tpcdefs);
-	vscode.window.registerTreeDataProvider('kstm32.cincludes', tpcincludes);
-	vscode.window.registerTreeDataProvider('kstm32.csources', tpcsources);
+	vscode.window.registerTreeDataProvider('kstm32.stdperiph', stdperiph);
+	vscode.window.registerTreeDataProvider('kstm32.cdefs', defines);
+	vscode.window.registerTreeDataProvider('kstm32.cincludes', includes);
+	vscode.window.registerTreeDataProvider('kstm32.csources', sources);
 
 	context.subscriptions.push(vscode.commands.registerCommand('kstm32.refresh', () => {
-		vscode.commands.executeCommand('kstm32.configure').then(() => {
-			tpstdperiph.refresh();
-			tpcdefs.refresh();
-			tpcincludes.refresh();
-			tpcsources.refresh();
-		});
+		stdperiph.refresh();
+		defines.refresh();
+		includes.refresh();
+		sources.refresh();
+		vscode.commands.executeCommand('kstm32.configure');
 	}));
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }

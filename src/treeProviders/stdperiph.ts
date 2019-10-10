@@ -1,65 +1,58 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as config from '../config';
+import { tpTemplate } from './tpTemplate';
 
-export class TPStdPeriph implements vscode.TreeDataProvider<vscode.TreeItem> {
+export class Provider extends tpTemplate<Item> {
 
-    private _onDidChangeTreeData: vscode.EventEmitter<vscode.TreeItem | undefined> = new vscode.EventEmitter<vscode.TreeItem | undefined>();
-    readonly onDidChangeTreeData: vscode.Event<vscode.TreeItem | undefined> = this._onDidChangeTreeData.event;
+    private enabled: string[] = [];
 
-    refresh(): void {
-        this._onDidChangeTreeData.fire();
-    }
-
-    getTreeItem(element: vscode.TreeItem): vscode.TreeItem {
-        return element;
-    }
-    getChildren(element?: vscode.TreeItem): Thenable<vscode.TreeItem[]> {
-        if (!element) {
-            let kstm32conf: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('kstm32');
-            let conf = config.getConfig() || {};
-            if (conf.type) {
-                let libPath: LibPath | undefined = getLibPath(kstm32conf, conf);
-                if (libPath) {
-                    let srcPath = `${libPath.stdperiph}/src`
-                    if (fs.existsSync(srcPath) && fs.statSync(srcPath).isDirectory()) {
-                        let result: vscode.TreeItem[] = [];
-                        fs.readdirSync(srcPath).forEach(filename => {
-                            if (filename.endsWith('.c') || filename.endsWith('.C')) {
-                                result.push(new ItemTpStdPeriph(filename));
-                            }
-                        })
-                        return Promise.resolve(result);
-                    } else {
-                        return Promise.resolve([new vscode.TreeItem(`错误的类型或插件设置`)]);
-                    }
-                } else {
-                    return Promise.resolve([new vscode.TreeItem(`未知的项目类型或错误的插件设置`)]);
+    reload(showerr: boolean = true): void {
+        this.items = undefined;
+        this.enabled = [];
+        let conf = config.getConfig() || {};
+        if (conf.type) {
+            let libPath: LibPath | undefined = getLibPath();
+            if (libPath) {
+                let srcPath = `${libPath.stdperiph}/src`
+                if (fs.existsSync(srcPath) && fs.statSync(srcPath).isDirectory()) {
+                    this.items = [];
+                    this.enabled = conf.useLib || [];
+                    fs.readdirSync(srcPath).forEach(filename => {
+                        if (filename.endsWith('.c') || filename.endsWith('.C')) {
+                            this.items.push(new Item(filename, this.enabled.indexOf(filename) != -1));
+                        }
+                    });
+                    return;
                 }
-            } else {
-                return Promise.resolve([new vscode.TreeItem(`未知的项目类型`)]);
+            }
+            if (showerr) {
+                vscode.window.showErrorMessage('无法找到项目对应的标准库');
+            }
+        } else {
+            if (showerr) {
+                vscode.window.showErrorMessage('未知的项目类型');
             }
         }
-        return Promise.resolve([]);
+    }
+    getEnabled(): string[] {
+        if (!this.items) {
+            this.refresh();
+        }
+        return this.enabled;
     }
 }
 
-class ItemTpStdPeriph extends vscode.TreeItem {
+class Item extends vscode.TreeItem {
     filename: string;
-    constructor(filename: string) {
+    enabled: boolean;
+    constructor(filename: string, enabled: boolean) {
         super(filename.substring(0, filename.length - 2));
         this.filename = filename;
+        this.enabled = enabled;
     }
     get description(): string {
-        let conf: config.Kstm32Config | undefined = config.getConfig();
-        if (conf) {
-            let useLib: string[] = conf.useLib || [];
-            let index = useLib.indexOf(this.filename);
-            if (index != -1) {
-                return '[已启用]'
-            }
-        }
-        return '';
+        return this.enabled ? '[已启用]' : '';
     }
 }
 
@@ -68,7 +61,9 @@ export type LibPath = {
     stdperiph: string;
 }
 
-export function getLibPath(kstm32cfg: vscode.WorkspaceConfiguration, cfg: config.Kstm32Config): LibPath | undefined {
+export function getLibPath(): LibPath | undefined {
+    let kstm32cfg: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('kstm32');
+    let cfg: config.Kstm32Config = config.getConfig() || {};
     let type: string | undefined = cfg.type;
     let libPath: string | undefined;
     let result: LibPath | undefined;
@@ -100,7 +95,7 @@ export function getLibPath(kstm32cfg: vscode.WorkspaceConfiguration, cfg: config
 
 export function registerCmd(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('kstm32.toggleuselib', (libname) => {
-        if (libname instanceof ItemTpStdPeriph) {
+        if (libname instanceof Item) {
             let conf: config.Kstm32Config | undefined = config.getConfig();
             if (conf) {
                 let useLib: string[] = conf.useLib || [];

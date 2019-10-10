@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as config from '../config';
 import * as stdperiph from '../treeProviders/stdperiph';
 import * as path from 'path';
+import * as kstm32_i from '../extension';
 
 export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('kstm32.configure', function () {
@@ -34,70 +35,21 @@ function configure(root: vscode.Uri) {
     
     fs.readFile(makefilePath, { encoding: 'UTF-8' }, (err, makefile) => {
         if (err) {
-            vscode.window.showErrorMessage(`读取 ./Makefile 出错: ${err.message}`);
+            vscode.window.showErrorMessage(`读取Makefile出错: ${err.message}`);
             return;
-        }
-
-        let libPath: stdperiph.LibPath | undefined = stdperiph.getLibPath(kstm32cfg, conf);
-        let type = conf.type || '';
-        let type_s = type.substr(10, 11);
-
-        // autoconf
-        let sources: string[] = [];
-        let includes: string[] = [];
-        let defines: string[] = [];
-        let asm: string[] = [];
-        // project c h s
-        lsRecursion(root.fsPath, '/src').forEach(filename => {
-            if (filename.endsWith('.c') || filename.endsWith('.C')) {
-                sources.push(filename);
-            } else if (filename.endsWith('.h') || filename.endsWith('.H')) {
-                config.myArrayAdd(includes, filename.substring(0, filename.lastIndexOf('/')));
-            } else if (filename.endsWith('.s') || filename.endsWith('.S')) {
-                asm.push(filename);
-            }
-        });
-        // libs
-        if (libPath) {
-            // StdPeriph
-            let useLib = conf.useLib || [];
-            if (useLib.length > 0) {
-                useLib.forEach(lib => {
-                    sources.push(`${(libPath || {}).stdperiph}/src/${lib}`.replace(/\\/g, '/'));
-                });
-                defines.push('USE_STDPERIPH_DRIVER');
-                includes.push(`${(libPath || {}).stdperiph}/inc`.replace(/\\/g, '/'));
-            }
-            // core
-            if (type.startsWith('STM32F103')) {
-                sources.push(`${(libPath || {}).root}/CMSIS/CM3/CoreSupport/core_cm3.c`.replace(/\\/g, '/'));
-                includes.push(`${(libPath || {}).root}/CMSIS/CM3/CoreSupport`.replace(/\\/g, '/'));
-            } else if (type.startsWith('STM32F407')) {
-                includes.push(`${(libPath || {}).root}/CMSIS/Include`.replace(/\\/g, '/'));
-            }
-        }
-        // type define
-        if (type.startsWith('STM32F10')) {
-            if (type_s == '8') {
-                defines.push('STM32F10X_MD');
-            } else if (type_s == 'C') {
-                defines.push('STM32F10X_HD');
-            }
-        } else if (type.startsWith('STM32F407')) {
-            defines.push('STM32F40_41xxx');
         }
 
         // sources
         let makefileSources: string = '';
-        sources.forEach(source => makefileSources = `${makefileSources} \\\r\n${source}`);
+        kstm32_i.sources.sources_buffer.forEach(source => makefileSources = `${makefileSources} \\\r\n${source}`);
         let msarr = makefile.match(/#--kstm32-autoconf:sources\r?\n([a-zA-Z0-9_]+) *=(.*\\\r?\n)*.*/);
         if (msarr) {
             makefile = makefile.replace(msarr[0], `#--kstm32-autoconf:sources\r\n${msarr[1]} =${makefileSources}`);
         }
 
         // defines
-        (conf.defines || []).forEach(define => defines.push(define));
         let makefileDefines: string = '';
+        let defines = kstm32_i.defines.defines_buffer;
         defines.forEach(define => makefileDefines = `${makefileDefines} \\\r\n-D${define}`);
         let mdarr = makefile.match(/#--kstm32-autoconf:defines\r?\n([a-zA-Z0-9_]+) *=(.*\\\r?\n)*.*/);
         if (mdarr) {
@@ -106,8 +58,8 @@ function configure(root: vscode.Uri) {
         cppcfg.update('defines', defines, vscode.ConfigurationTarget.Workspace);
 
         // includes
-        (conf.includes || []).forEach(include => includes.push(include));
         let makefileIncludes: string = '';
+        let includes: string[] = kstm32_i.includes.includes_buffer;
         includes.forEach(include => makefileIncludes = `${makefileIncludes} \\\r\n-I${include}`);
         let miarr = makefile.match(/#--kstm32-autoconf:includes\r?\n([a-zA-Z0-9_]+) *=(.*\\\r?\n)*.*/);
         if (miarr) {
@@ -120,7 +72,7 @@ function configure(root: vscode.Uri) {
 
         // asm
         let makefileAsm: string = '';
-        asm.forEach(a => makefileAsm = `${makefileAsm} \\\r\n${a}`);
+        kstm32_i.sources.asm_buffer.forEach(a => makefileAsm = `${makefileAsm} \\\r\n${a}`);
         let maarr = makefile.match(/#--kstm32-autoconf:asm\r?\n([a-zA-Z0-9_]+) *=(.*\\\r?\n)*.*/);
         if (maarr) {
             makefile = makefile.replace(maarr[0], `#--kstm32-autoconf:asm\r\n${maarr[1]} =${makefileAsm}`);
@@ -141,24 +93,3 @@ function configure(root: vscode.Uri) {
     });
 }
 
-/**
- * 递归列目录内容
- */
-function lsRecursion(basePath: string, subPath?: string): string[] {
-    let result: string[] = [];
-    fs.readdirSync(`${basePath}${subPath}`).forEach(filename => {
-        if (filename != '.vscode') {
-            let stat = fs.statSync(basePath + '/' + subPath + '/' + filename);
-            let r = (subPath + '/' + filename).substring(1);
-            if (stat.isFile()) {
-                result.push(r);
-            } else if (stat.isDirectory()) {
-                result.push(r + '/');
-                lsRecursion(basePath, subPath + '/' + filename).forEach(_name => {
-                    result.push(_name);
-                });
-            }
-        }
-    });
-    return result;
-}
