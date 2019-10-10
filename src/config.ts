@@ -22,6 +22,7 @@ export function getWorkspaceRoot(): vscode.Uri | undefined {
             return workspaceFolders[0].uri;
         }
     }
+    return undefined;
 }
 
 export function getConfig(): Kstm32Config | undefined {
@@ -41,6 +42,7 @@ export function getConfig(): Kstm32Config | undefined {
             vscode.window.showErrorMessage('读取配置文件失败');
         }
     }
+    return undefined;
 }
 
 export function saveConfig(config: Kstm32Config) {
@@ -94,4 +96,5 @@ export function getExePath(name: string): string | undefined {
             }
         }
     }
+    return undefined;
 }

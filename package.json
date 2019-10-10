@@ -43,8 +43,8 @@
 				"command": "kstm32.refresh",
 				"title": "刷新项目环境",
 				"icon": {
-					"dark": "src/svg/dark/refresh.svg",
-					"light": "src/svg/light/refresh.svg"
+					"dark": "resources/svg/dark/refresh.svg",
+					"light": "resources/svg/light/refresh.svg"
 				},
 				"category": "KSTM32.refresh"
 			},
@@ -52,8 +52,8 @@
 				"command": "kstm32.cdefs.add",
 				"title": "加入新的define",
 				"icon": {
-					"dark": "src/svg/add.svg",
-					"light": "src/svg/add.svg"
+					"dark": "resources/svg/dark/add.svg",
+					"light": "resources/svg/light/add.svg"
 				},
 				"category": "KSTM32.define"
 			},
@@ -112,7 +112,7 @@
 				{
 					"id": "kstm32",
 					"title": "暮光小猿STM32小工具",
-					"icon": "src/svg/stm32.svg"
+					"icon": "resources/svg/stm32.svg"
 				}
 			]
 		},
