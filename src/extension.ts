@@ -11,6 +11,7 @@ import * as stdperiph_i from './treeProviders/stdperiph';
 import * as defines_i from './treeProviders/defines';
 import * as includes_i from './treeProviders/includes';
 import * as sources_i from './treeProviders/sources';
+import * as options_i from './treeProviders/options';
 
 import * as config from './config';
 
@@ -40,6 +41,7 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.window.registerTreeDataProvider('kstm32.cdefs', defines);
 	vscode.window.registerTreeDataProvider('kstm32.cincludes', includes);
 	vscode.window.registerTreeDataProvider('kstm32.csources', sources);
+	vscode.window.registerTreeDataProvider('kstm32.options', new options_i.Provider());
 
 	context.subscriptions.push(vscode.commands.registerCommand('kstm32.refresh', () => {
 		stdperiph.refresh();

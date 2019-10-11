@@ -54,6 +54,13 @@ class Item extends vscode.TreeItem {
     get description(): string {
         return this.enabled ? '[已启用]' : '';
     }
+    get command(): vscode.Command {
+        return {
+            title: this.label,
+            command: 'kstm32.toggleuselib',
+            arguments: [this]
+        };
+    }
 }
 
 export type LibPath = {

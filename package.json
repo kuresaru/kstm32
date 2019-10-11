@@ -119,6 +119,10 @@
 		"views": {
 			"kstm32": [
 				{
+					"id": "kstm32.options",
+					"name": "Options"
+				},
+				{
 					"id": "kstm32.csources",
 					"name": "C Sources"
 				},

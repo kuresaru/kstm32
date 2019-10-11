@@ -23,7 +23,6 @@ export class Provider implements vscode.TreeDataProvider<Item> {
             let source = config.lsRecursionObject(root.fsPath, '/src', (filename) => {
                 return filename.endsWith('.c') || filename.endsWith('C');
             });
-            console.log(source);
             if (typeof source == 'object') {
                 this.sources_project = source;
             }
