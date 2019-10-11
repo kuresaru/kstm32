@@ -40,7 +40,7 @@ export function register(context: vscode.ExtensionContext) {
         let cmd = `${ocd}/bin/openocd${win ? '.exe' : ''}`;
 
         vscode.commands.executeCommand('kstm32.refresh').then(() => {
-            vscode.tasks.executeTask(new vscode.Task({ type: "shell" }, vscode.TaskScope.Workspace, 'make', 'shell',
+            vscode.tasks.executeTask(new vscode.Task({ type: "shell" }, vscode.TaskScope.Workspace, 'OpenOCD', 'shell',
                 new vscode.ShellExecution(cmd, args, {cwd: `${ocd}/scripts`})));
         });
     }));
