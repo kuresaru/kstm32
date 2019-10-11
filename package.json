@@ -17,8 +17,7 @@
 		"vscode": "^1.37.0"
 	},
 	"categories": [
-		"Other",
-		"Snippets"
+		"Other"
 	],
 	"activationEvents": [
 		"onCommand:kstm32.create",
