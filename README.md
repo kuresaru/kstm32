@@ -49,6 +49,7 @@ Linux就不用说了吧, Windows的我把官方源码编译了一份, 已经上�
 ###### 1. GCC Home
 gcc工具的根目录, 包含"arm-none-eabi", "bin", "lib", "share"四个目录.
 如果你没有配置GCC的环境变量, 那么一定要配置这个选项.
+(Windows暂不支持本选项, 请配置环境变量)
 ###### 2. Make
 make工具的位置, 一般是为Windows系统配置的.
 填下载到的make.exe的文件路径.
