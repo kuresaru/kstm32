@@ -1,7 +1,7 @@
 # 暮光小猿STM32小工具 kstm32
 
 ## 为什么要写这个插件
-为了简化VSCode+GCC开发STM32时的项目环境配置
+为了简化VSCode+GCC开发STM32时的工程环境配置
 顺便提供一些常用功能
 
 ## 如何开始
@@ -11,9 +11,9 @@
 
 ### 2. 基本环境配置
 下载地址伸手链接 https://pan.baidu.com/s/11te7jUyUf_vH8_hdC2wtrA&shfl=sharepset
-###### 1. 下载配套的项目模板
+###### 1. 下载配套的工程模板
 GitHub: https://github.com/kuresaru/KSTM32_Templates
-尽量从GitHub项目Clone下来, 如果以后模板有更新, 可以直接pull.
+尽量从GitHub工程Clone下来, 如果以后模板有更新, 可以直接pull.
 ###### 2. 下载ST官方的标准外设库
 F10x和F4xx两个库, 用哪个下载哪个, 可以去ST官方, 也可以去上边的伸手链接.
 ###### 3. 下载arm-none-eabi-gcc
@@ -32,7 +32,7 @@ Linux就不用说了吧, Windows的我把官方源码编译了一份, 已经上�
 
 ###### Libs: STM32F10x StdPeriph
 这个是从ST官方下载下来的STM32F10x的标准外设库路径, 如果你不使用库开发, 可以忽略.
-复用库是为了避免一个项目一份库, 占用磁盘空间.
+复用库是为了避免一个工程一份库, 占用磁盘空间.
 路径中应该含有"CMSIS"和"STM32F10x_StdPeriph_Driver"目录(官方下载压缩包里的"Libraries"目录).
 配置示例: D:\Things\MCU\STM32_Libs\STM32F10x_StdPeriph_Lib_V3.5.0\Libraries
 
@@ -60,7 +60,7 @@ OpenOCD的根路径, 包含"bin", "contrib", "doc", "scripts"等目录.
 Windows如果配置了环境变量, 可以为空.
 有些Linux会把可执行文件链接到如"/bin"等目录, 那么必须配置本选项, 并保证有"bin"和"scripts"目录.
 
-### 5. 新建一个项目
+### 5. 新建一个工程
 ###### 1. 新建一个普通的目录, 并用VSCode打开目录.
 ![新建文件夹](./resources/img/mkdir.jpg)
 ![用vscode打开](./resources/img/open_with_code.jpg)
@@ -74,21 +74,29 @@ Windows如果配置了环境变量, 可以为空.
 ![kstm32_menu](./resources/img/kstm32_menu.jpg)
 ###### 6. 从下边单击需要使用的标准外设库
 ![select_stdperiph](./resources/img/select_stdperiph.jpg)
-###### 7. 开始你的项目
-所有项目文件都写到src目录中, 本插件会自动识别并把你的工程文件(.c/.h/.s)配置到Makefile和vscode语法检查配置中.
-###### 8. 编译项目
+###### 7. 开始你的工程
+所有工程文件都写到src目录中, 本插件会自动识别并把你的工程文件(.c/.h/.s)配置到Makefile和vscode语法检查配置中.
+###### 8. 编译工程
 手动: 打开一个终端, 输入make编译. (Windows终端改UTF8的方法: chcp 65001)
 ![chcp](./resources/img/chcp.jpg)
 ![make](./resources/img/make.jpg)
 自动(暂时有问题, 总是会重新编译所有工程文件):
 ![opt_make](./resources/img/opt_make.jpg)
 
-### 6. 调试
+### 6. 工程其它配置
+###### 自定义预定义宏
+![add_define](./resources/img/add_define.jpg)
+点击这个按钮, 然后输入需要定义的宏名.
+![del_define](./resources/img/del_define.jpg)
+右击一个定义, 可以删除.
+
+### 7. 调试
 调试相关的可以参考旧模板或参考c语言的启动配置, 配置gdb启动.
 可以使用本插件一键启动OpenOCD, 使用ST-Link_v2方式连接.
 或者推荐一下Cortex-debug这个插件(虽然启动比较慢, 不过人家这是专业的, 我就不再写这种功能了)
 
-### 7. 自定义项目模板
+### 8. 自定义工程模板
+##### 创建模板文件
 在创建新工程时只有一个默认"default"模板.
 打开模板目录, 在"default"同级创建一个空目录.
 ![new_template](./resources/img/new_template.jpg)
@@ -97,8 +105,17 @@ Windows如果配置了环境变量, 可以为空.
 那么需要在"default"同级目录中新建"_6"目录, 在目录中以模板相同结构放入文件.
 最终新建出来的工程 = 模板中的文件 + 芯片特有的文件 (两个都有的文件以芯片特有为准).
 可以以默认模板为例参考.
+###### 编辑模板Makefile
+在对应的Makefile对应的变量的上一行加入下面对应的注释标记
+#--kstm32-autoconf:name
+#--kstm32-autoconf:sources
+#--kstm32-autoconf:asm
+#--kstm32-autoconf:defines
+#--kstm32-autoconf:includes
+本插件自动配置环境时会自动修改对应变量等号后面的值.
+如加上"#--kstm32-autoconf:source"的变量, 会自动把值设置为工程中需要编译的.c文件的路径.
 
-### 8. Bug反馈/交流/其它
+### 9. Bug反馈/交流/其它
 小猿山庄/QQ群: 367341477
 Bilibili: https://space.bilibili.com/15858903
 个人网站: http://www.scraft.top
