@@ -7,6 +7,7 @@ export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('kstm32.make', function () {
         let kstm32cfg: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('kstm32');
         let make: string | undefined = kstm32cfg.get('make');
+        let gccHome: string | undefined = kstm32cfg.get('gccHome');
         let win = config.isWindows();
         if (!make) {
             if (win) {
@@ -21,8 +22,12 @@ export function register(context: vscode.ExtensionContext) {
             cmd = `cmd`;
             args.push('/C', `chcp 65001 & ${make}`);
         } else {
+            let setgcc = '';
+            if (gccHome) {
+                setgcc = `export GCC_PATH='${gccHome}/bin'`
+            }
             cmd = `sh`;
-            args.push('-c', `${make}`);
+            args.push('-c', `${setgcc}; ${make}`);
         }
         vscode.commands.executeCommand('kstm32.refresh').then(() => {
             vscode.tasks.executeTask(new vscode.Task({ type: "shell" }, vscode.TaskScope.Workspace, 'make', 'shell',
