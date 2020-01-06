@@ -65,8 +65,16 @@ function configure(root: vscode.Uri) {
         if (miarr) {
             makefile = makefile.replace(miarr[0], `#--kstm32-autoconf:includes\r\n${miarr[1]} =${makefileIncludes}`);
         }
+        // cpp插件需要gcc库
         if (gccHome) {
             includes.push(`${gccHome}/arm-none-eabi/include/*`.replace(/\\/g, '/'));
+        }
+        // cpp插件需要标准库源文件
+        if (kstm32_i.stdperiph.getEnabled().length > 0) {
+            let libPath: stdperiph.LibPath | undefined = stdperiph.getLibPath();
+            if (libPath) {
+                includes.push(`${libPath.stdperiph}/src/*`.replace(/\\/g, '/'));
+            }
         }
         cppcfg.update('includePath', includes, vscode.ConfigurationTarget.Workspace);
 
