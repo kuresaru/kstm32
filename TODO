@@ -1,0 +1,3 @@
+自动生成openocd的配置文件
+自动配置launch.json的cortex-debug调试启动
+排除源文件或目录

@@ -20,9 +20,19 @@ export function register(context: vscode.ExtensionContext) {
 function create(projectUri: vscode.Uri) {
     let test: string[] = fs.readdirSync(projectUri.fsPath);
     if (test.length > 0 && !(test.length == 1 && test[0] == '.vscode')) {
-        vscode.window.showErrorMessage('创建被取消: 工作目录非空');
-        return;
+        vscode.window.showWarningMessage("目录非空，继续创建会被模板文件覆盖同名文件", "继续", "取消").then(v => {
+            if (v == '继续') {
+                doCreate(projectUri);
+            } else {
+                vscode.window.showInformationMessage('创建被取消: 工作目录非空');
+            }
+        });
+    } else {
+        doCreate(projectUri);
     }
+}
+
+function doCreate(projectUri: vscode.Uri) {
     vscode.window.showQuickPick([
         "STM32F103x8",
         "STM32F103xC",
