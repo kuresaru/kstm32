@@ -4,6 +4,7 @@ import * as config from '../config';
 import * as stdperiph from '../treeProviders/stdperiph';
 import * as path from 'path';
 import * as kstm32_i from '../extension';
+import * as openocd_i from '../commands/openocd';
 
 export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('kstm32.configure', function () {
@@ -98,6 +99,8 @@ function configure(root: vscode.Uri) {
                 vscode.window.showErrorMessage(`写入 ./Makefile 出错: ${err.message}`);
             }
         });
+
+        openocd_i.genCfgFile(root).catch(err => vscode.window.showErrorMessage(err));
     });
 }
 

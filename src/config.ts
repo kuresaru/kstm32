@@ -13,6 +13,7 @@ export type Kstm32Config = {
     // TODO 外部资源导入 排除项目资源
     sourceExcludes?: string[];
     sourceIncludes?: string[];
+    debugger?: string;
 };
 
 export function getWorkspaceRoot(): vscode.Uri | undefined {
