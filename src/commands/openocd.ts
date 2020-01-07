@@ -48,7 +48,7 @@ export function genCfgFile(root: vscode.Uri): Promise<void> {
             let cfgFile: string = `# kstm32自动生成的OpenOCD运行配置，git应该忽略该文件。
 source [find ${ocdScripts}/interface/${_debugger}.cfg]
 source [find ${ocdScripts}/target/${target}.cfg]`;
-            fs.writeFile(vscode.Uri.parse(`${root}/kstm32-openocd.cfg`).fsPath, cfgFile,
+            fs.writeFile(vscode.Uri.parse(`${root}/kstm32-openocd-autogen.cfg`).fsPath, cfgFile,
                 { encoding: 'UTF-8' }, err => {
                     if (err) {
                         reject(err);
