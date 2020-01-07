@@ -19,7 +19,7 @@ function configure(root: vscode.Uri) {
     let kstm32cfg: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('kstm32');
     let cppcfg = vscode.workspace.getConfiguration('C_Cpp.default');
     let conf: config.Kstm32Config = config.getConfig() || {};
-    let makefilePath = vscode.Uri.parse(`${root}/Makefile`).fsPath;
+    let makefilePath = vscode.Uri.parse(`${root}/kstm32-makefile-autogen.mk`).fsPath;
     let gccHome: string | undefined = kstm32cfg.get('gccHome');
 
     if (!gccHome) {
@@ -33,74 +33,53 @@ function configure(root: vscode.Uri) {
     }
 
     cppcfg.update('compilerPath', `${gccHome}/bin/arm-none-eabi-gcc${config.isWindows() ? '.exe' : ''}`.replace(/\\/g, '/'), vscode.ConfigurationTarget.Workspace);
-    
-    fs.readFile(makefilePath, { encoding: 'UTF-8' }, (err, makefile) => {
+
+    let makefile = `# kstm32自动生成的部分Makefile，git应忽略该文件`;
+    makefile += `\r\nTARGET = ${conf.name}`;
+
+    // sources
+    makefile += `\r\n\r\nC_SOURCES =`;
+    let sources: string[] = kstm32_i.sources.sources_buffer;
+    sources.forEach(source => makefile += ` \\\r\n${source}`);
+
+    // defines
+    makefile += `\r\n\r\nC_DEFS =`;
+    let defines: string[] = kstm32_i.defines.defines_buffer;
+    defines.forEach(define => makefile += ` \\\r\n-D${define}`);
+    cppcfg.update('defines', defines, vscode.ConfigurationTarget.Workspace);
+
+    // includes
+    makefile += `\r\n\r\nC_INCLUDES =`;
+    let includes: string[] = kstm32_i.includes.includes_buffer;
+    includes.forEach(include => makefile += ` \\\r\n-I${include}`);
+    // cpp插件需要gcc库
+    if (gccHome) {
+        includes.push(`${gccHome}/arm-none-eabi/include/*`.replace(/\\/g, '/'));
+    }
+    // cpp插件需要标准库源文件
+    if (kstm32_i.stdperiph.getEnabled().length > 0) {
+        let libPath: stdperiph.LibPath | undefined = stdperiph.getLibPath();
+        if (libPath) {
+            includes.push(`${libPath.stdperiph}/src/*`.replace(/\\/g, '/'));
+        }
+    }
+    cppcfg.update('includePath', includes, vscode.ConfigurationTarget.Workspace);
+
+    // asm
+    makefile += `\r\n\r\nASM_SOURCES =`;
+    let asmSources: string[] = kstm32_i.sources.asm_buffer;
+    asmSources.forEach(a => makefile += ` \\\r\n${a}`);
+
+    // endl
+    makefile += `\r\n`;
+
+    // write Makefile
+    fs.writeFile(makefilePath, makefile, { encoding: 'UTF-8' }, err => {
         if (err) {
-            vscode.window.showErrorMessage(`读取Makefile出错: ${err.message}`);
-            return;
+            vscode.window.showErrorMessage(`写入 ./kstm32-makefile-autogen.mk 出错: ${err.message}`);
         }
-
-        // sources
-        let makefileSources: string = '';
-        kstm32_i.sources.sources_buffer.forEach(source => makefileSources = `${makefileSources} \\\r\n${source}`);
-        let msarr = makefile.match(/#--kstm32-autoconf:sources\r?\n([a-zA-Z0-9_]+) *=(.*\\\r?\n)*.*/);
-        if (msarr) {
-            makefile = makefile.replace(msarr[0], `#--kstm32-autoconf:sources\r\n${msarr[1]} =${makefileSources}`);
-        }
-
-        // defines
-        let makefileDefines: string = '';
-        let defines = kstm32_i.defines.defines_buffer;
-        defines.forEach(define => makefileDefines = `${makefileDefines} \\\r\n-D${define}`);
-        let mdarr = makefile.match(/#--kstm32-autoconf:defines\r?\n([a-zA-Z0-9_]+) *=(.*\\\r?\n)*.*/);
-        if (mdarr) {
-            makefile = makefile.replace(mdarr[0], `#--kstm32-autoconf:defines\r\n${mdarr[1]} =${makefileDefines}`);
-        }
-        cppcfg.update('defines', defines, vscode.ConfigurationTarget.Workspace);
-
-        // includes
-        let makefileIncludes: string = '';
-        let includes: string[] = kstm32_i.includes.includes_buffer;
-        includes.forEach(include => makefileIncludes = `${makefileIncludes} \\\r\n-I${include}`);
-        let miarr = makefile.match(/#--kstm32-autoconf:includes\r?\n([a-zA-Z0-9_]+) *=(.*\\\r?\n)*.*/);
-        if (miarr) {
-            makefile = makefile.replace(miarr[0], `#--kstm32-autoconf:includes\r\n${miarr[1]} =${makefileIncludes}`);
-        }
-        // cpp插件需要gcc库
-        if (gccHome) {
-            includes.push(`${gccHome}/arm-none-eabi/include/*`.replace(/\\/g, '/'));
-        }
-        // cpp插件需要标准库源文件
-        if (kstm32_i.stdperiph.getEnabled().length > 0) {
-            let libPath: stdperiph.LibPath | undefined = stdperiph.getLibPath();
-            if (libPath) {
-                includes.push(`${libPath.stdperiph}/src/*`.replace(/\\/g, '/'));
-            }
-        }
-        cppcfg.update('includePath', includes, vscode.ConfigurationTarget.Workspace);
-
-        // asm
-        let makefileAsm: string = '';
-        kstm32_i.sources.asm_buffer.forEach(a => makefileAsm = `${makefileAsm} \\\r\n${a}`);
-        let maarr = makefile.match(/#--kstm32-autoconf:asm\r?\n([a-zA-Z0-9_]+) *=(.*\\\r?\n)*.*/);
-        if (maarr) {
-            makefile = makefile.replace(maarr[0], `#--kstm32-autoconf:asm\r\n${maarr[1]} =${makefileAsm}`);
-        }
-
-        // name
-        let mnarr = makefile.match(/#--kstm32-autoconf:name\r?\n([a-zA-Z0-9_]+) *=(.*\\\r?\n)*.*/);
-        if (mnarr && conf.name) {
-            makefile = makefile.replace(mnarr[0], `#--kstm32-autoconf:name\r\n${mnarr[1]} = ${conf.name}`);
-        }
-
-        // write Makefile
-        fs.writeFile(makefilePath, makefile, { encoding: 'UTF-8' }, err => {
-            if (err) {
-                vscode.window.showErrorMessage(`写入 ./Makefile 出错: ${err.message}`);
-            }
-        });
-
-        openocd_i.genCfgFile(root).catch(err => vscode.window.showErrorMessage(err));
     });
+
+    openocd_i.genCfgFile(root).catch(err => vscode.window.showErrorMessage(err));
 }
 
