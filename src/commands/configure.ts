@@ -40,7 +40,7 @@ function configure(root: vscode.Uri) {
     // sources
     makefile += `\r\n\r\nC_SOURCES =`;
     let sources: string[] = kstm32_i.sources.sources_buffer;
-    sources.forEach(source => makefile += ` \\\r\n${source}`);
+    sources.forEach(source => makefile += ` \\\r\n${source.replace(/ /g, '\\ ')}`);
 
     // defines
     makefile += `\r\n\r\nC_DEFS =`;
@@ -51,7 +51,7 @@ function configure(root: vscode.Uri) {
     // includes
     makefile += `\r\n\r\nC_INCLUDES =`;
     let includes: string[] = kstm32_i.includes.includes_buffer;
-    includes.forEach(include => makefile += ` \\\r\n-I${include}`);
+    includes.forEach(include => makefile += ` \\\r\n-I'${include}'`);
     // cpp插件需要gcc库
     if (gccHome) {
         includes.push(`${gccHome}/arm-none-eabi/include/*`.replace(/\\/g, '/'));
