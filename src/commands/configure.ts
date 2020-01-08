@@ -5,7 +5,7 @@ import * as stdperiph from '../treeProviders/stdperiph';
 import * as path from 'path';
 import * as kstm32_i from '../extension';
 import * as openocd_i from '../commands/openocd';
-import * as verUtils from '../ver/verUtils';
+import * as verUtils from '../templateVer/verUtils';
 
 export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('kstm32.configure', function () {
@@ -23,7 +23,9 @@ export function register(context: vscode.ExtensionContext) {
                         if (opt == opt_continue) {
                             doConfigure(root);
                         } else if (opt == opt_update) {
-                            verUtils.doUpdate(root);
+                            verUtils.doUpdate(root)
+                            .then(() => vscode.window.showInformationMessage(`升级完成`))
+                            .catch(err => vscode.window.showErrorMessage(`升级出错: ${err}`));
                         }
                     }));
         }

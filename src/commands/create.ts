@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as config from '../projectConfig';
-import * as verUtils from '../ver/verUtils';
+import * as verUtils from '../templateVer/verUtils';
 
 export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('kstm32.create', function () {
@@ -32,7 +32,12 @@ function create(projectUri: vscode.Uri) {
         } else {
             doCreate(projectUri, verUtils.templateVer);
         }
-    }).catch(ver => vscode.window.showErrorMessage(`插件支持${verUtils.templateVer}版本的模板，但是当前模板版本是${ver}`));
+    }).catch(ver => vscode.window.showErrorMessage(`插件支持${verUtils.templateVer}版本的模板，但是当前模板版本是${ver}`,
+        "继续创建(不推荐)", "取消(去手动更新)").then(opt => {
+            if (opt == '继续创建(不推荐)') {
+                doCreate(projectUri, ver);
+            }
+        }));
 }
 
 function doCreate(projectUri: vscode.Uri, fromLibVer: number) {
