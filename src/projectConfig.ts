@@ -14,6 +14,7 @@ export type Kstm32Config = {
     sourceExcludes?: string[];
     sourceIncludes?: string[];
     debugger?: string;
+    fromLibVer?: number;
 };
 
 export function getWorkspaceRoot(): vscode.Uri | undefined {

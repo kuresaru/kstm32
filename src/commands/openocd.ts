@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import * as config from '../config';
+import * as config from '../projectConfig';
 import * as path from 'path';
 import * as fs from 'fs';
 

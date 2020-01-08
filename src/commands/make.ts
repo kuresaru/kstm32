@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import * as config from '../config';
+import * as config from '../projectConfig';
 
 export const MakeTaskType = 'KSTM32.make';
 

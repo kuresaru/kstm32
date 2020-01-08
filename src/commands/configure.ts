@@ -1,21 +1,36 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import * as config from '../config';
+import * as config from '../projectConfig';
 import * as stdperiph from '../treeProviders/stdperiph';
 import * as path from 'path';
 import * as kstm32_i from '../extension';
 import * as openocd_i from '../commands/openocd';
+import * as verUtils from '../ver/verUtils';
 
 export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('kstm32.configure', function () {
         let root: vscode.Uri | undefined = config.getWorkspaceRoot();
         if (root) {
-            configure(root);
+            const opt_update = `自动升级到版本${verUtils.templateVer}(可能会出问题)`;
+            const opt_continue = `继续操作(基本不会正常工作)`;
+            const opt_cancel = `取消并手动解决`;
+            verUtils.checkProjectLibVer(root)
+                .then(() => doConfigure(root))
+                .catch(ver => vscode.window.showWarningMessage
+                    (`插件支持${verUtils.templateVer}版本的模板，但是当前工程是从${ver}版本模板创建的.
+详细信息请参考插件Readme文档.
+无论如何请先备份此工程.`, opt_update, opt_continue, opt_cancel).then(opt => {
+                        if (opt == opt_continue) {
+                            doConfigure(root);
+                        } else if (opt == opt_update) {
+                            verUtils.doUpdate(root);
+                        }
+                    }));
         }
     }));
 }
 
-function configure(root: vscode.Uri) {
+function doConfigure(root: vscode.Uri) {
     let kstm32cfg: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('kstm32');
     let cppcfg = vscode.workspace.getConfiguration('C_Cpp.default');
     let conf: config.Kstm32Config = config.getConfig() || {};

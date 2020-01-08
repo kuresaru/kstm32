@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as tpTemplate from './tpTemplate';
-import * as config from '../config';
+import * as config from '../projectConfig';
 import * as kstm32_i from '../extension';
 import * as stdperiph_i from '../treeProviders/stdperiph';
 

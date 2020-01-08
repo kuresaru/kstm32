@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import * as config from '../config';
+import * as config from '../projectConfig';
 import { tpTemplate } from './tpTemplate';
 
 export class Provider extends tpTemplate<Item> {

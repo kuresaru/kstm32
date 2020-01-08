@@ -13,7 +13,7 @@ import * as includes_i from './treeProviders/includes';
 import * as sources_i from './treeProviders/sources';
 import * as options_i from './treeProviders/options';
 
-import * as config from './config';
+import * as config from './projectConfig';
 
 
 export let defines: defines_i.Provider = new defines_i.Provider();

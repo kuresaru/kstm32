@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import * as config from '../config';
+import * as config from '../projectConfig';
+import * as verUtils from '../ver/verUtils';
 
 export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('kstm32.create', function () {
@@ -18,21 +19,23 @@ export function register(context: vscode.ExtensionContext) {
 }
 
 function create(projectUri: vscode.Uri) {
-    let test: string[] = fs.readdirSync(projectUri.fsPath);
-    if (test.length > 0 && !(test.length == 1 && test[0] == '.vscode')) {
-        vscode.window.showWarningMessage("目录非空，继续创建会被模板文件覆盖同名文件", "继续", "取消").then(v => {
-            if (v == '继续') {
-                doCreate(projectUri);
-            } else {
-                vscode.window.showInformationMessage('创建被取消: 工作目录非空');
-            }
-        });
-    } else {
-        doCreate(projectUri);
-    }
+    verUtils.checkLibVer().then(() => {
+        let test: string[] = fs.readdirSync(projectUri.fsPath);
+        if (test.length > 0 && !(test.length == 1 && test[0] == '.vscode')) {
+            vscode.window.showWarningMessage("目录非空，继续创建会被模板文件覆盖同名文件", "继续", "取消").then(v => {
+                if (v == '继续') {
+                    doCreate(projectUri, verUtils.templateVer);
+                } else {
+                    vscode.window.showInformationMessage('创建被取消: 工作目录非空');
+                }
+            });
+        } else {
+            doCreate(projectUri, verUtils.templateVer);
+        }
+    }).catch(ver => vscode.window.showErrorMessage(`插件支持${verUtils.templateVer}版本的模板，但是当前模板版本是${ver}`));
 }
 
-function doCreate(projectUri: vscode.Uri) {
+function doCreate(projectUri: vscode.Uri, fromLibVer: number) {
     vscode.window.showQuickPick([
         "STM32F103x8",
         "STM32F103xC",
@@ -61,7 +64,7 @@ function doCreate(projectUri: vscode.Uri) {
                     vscode.window.showQuickPick(templates).then(templateName => {
                         if (templateName) {
                             copyTemplate(projectUri.fsPath, templatePath, type_s, templateName);
-                            createConfig(type);
+                            createConfig(type, fromLibVer);
                             vscode.commands.executeCommand('kstm32.refresh');
                             vscode.window.showInformationMessage('初始化完成');
                         } else {
@@ -83,7 +86,7 @@ function copyTemplate(projectPath: string, templatePath: string, type_s: string,
     copyRecursion(`${templatePath}/_${type_s}`, projectPath);
 }
 
-function createConfig(type: string) {
+function createConfig(type: string, fromLibVer: number) {
     let conf = config.getConfig();
     if (conf) {
         let name: string | vscode.Uri | undefined = config.getWorkspaceRoot();
@@ -95,6 +98,7 @@ function createConfig(type: string) {
             conf.name = type;
         }
         conf.type = type;
+        conf.fromLibVer = fromLibVer;
         config.saveConfig(conf);
     }
 }
@@ -123,32 +127,6 @@ function copyRecursion(src: string, dest: string, overwrite: boolean = false) {
         }
     }
 }
-
-// /**
-//  * 递归复制目录
-//  * @returns 返回出错的目录
-//  */
-// function copyDirectory(src: fs.PathLike, dest: fs.PathLike): string | undefined {
-//     let content: String[] = fs.readdirSync(src);
-//     if (!mymkdir(dest)) {
-//         return dest.toString();
-//     }
-//     content.forEach(filename => {
-//         let _src = vscode.Uri.file(src + '/' + filename).fsPath;
-//         let _dest = vscode.Uri.file(dest + '/' + filename).fsPath;
-//         let stats = fs.statSync(_src);
-//         if (stats.isFile()) {
-//             let readStream = fs.createReadStream(_src);
-//             let writeStream = fs.createWriteStream(_dest);
-//             readStream.pipe(writeStream);
-//         } else if (stats.isDirectory) {
-//             let errpath = copyDirectory(_src, _dest);
-//             if (errpath) {
-//                 return errpath;
-//             }
-//         }
-//     });
-// }
 
 /**
  * 如果不存在 创建目录
