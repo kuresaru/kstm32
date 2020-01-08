@@ -72,7 +72,7 @@
 			},
 			{
 				"command": "kstm32.ocd",
-				"title": "运行OpenOCD",
+				"title": "运行OpenOCD(弃用)",
 				"category": "KSTM32.openocd"
 			}
 		],
