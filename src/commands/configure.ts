@@ -51,13 +51,19 @@ function doConfigure(root: vscode.Uri) {
 
     cppcfg.update('compilerPath', `${gccHome}/bin/arm-none-eabi-gcc${config.isWindows() ? '.exe' : ''}`.replace(/\\/g, '/'), vscode.ConfigurationTarget.Workspace);
 
+    let spaceWarnFlag: boolean = false;
     let makefile = `# kstm32自动生成的部分Makefile，git应忽略该文件`;
     makefile += `\r\nTARGET = ${conf.name}`;
 
     // sources
     makefile += `\r\n\r\nC_SOURCES =`;
     let sources: string[] = kstm32_i.sources.sources_buffer;
-    sources.forEach(source => makefile += ` \\\r\n${source.replace(/ /g, '\\ ')}`);
+    sources.forEach(source => {
+        makefile += ` \\\r\n${source.replace(/ /g, '\\ ')}`;
+        if (source.indexOf(' ') > -1) {
+            spaceWarnFlag = true;
+        }
+    });
 
     // defines
     makefile += `\r\n\r\nC_DEFS =`;
@@ -85,10 +91,19 @@ function doConfigure(root: vscode.Uri) {
     // asm
     makefile += `\r\n\r\nASM_SOURCES =`;
     let asmSources: string[] = kstm32_i.sources.asm_buffer;
-    asmSources.forEach(a => makefile += ` \\\r\n${a}`);
+    asmSources.forEach(a => {
+        makefile += ` \\\r\n${a}`;
+        if (a.indexOf(' ') > -1) {
+            spaceWarnFlag = true;
+        }
+    });
 
     // endl
     makefile += `\r\n`;
+
+    if (spaceWarnFlag) {
+        vscode.window.showWarningMessage('检测到库或外部C/ASM源文件路径中有空格，可能无法正常使用!');
+    }
 
     // write Makefile
     fs.writeFile(makefilePath, makefile, { encoding: 'UTF-8' }, err => {
