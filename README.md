@@ -62,32 +62,32 @@ Windows如果配置了环境变量, 可以为空.
 
 ### 5. 新建一个工程
 ###### 1. 新建一个普通的目录, 并用VSCode打开目录.
-![新建文件夹](./resources/img/mkdir.jpg)
-![用vscode打开](./resources/img/open_with_code.jpg)
+![新建文件夹](resources/img/mkdir.jpg)
+![用vscode打开](resources/img/open_with_code.jpg)
 ###### 2. 按Ctrl+P运行命令
-![create](./resources/img/create.jpg)
+![create](resources/img/create.jpg)
 ###### 3. 选择工程类型(芯片型号)
-![select_type](./resources/img/select_type.jpg)
+![select_type](resources/img/select_type.jpg)
 ###### 4. 选择模板
-![select_template](./resources/img/select_template.jpg)
+![select_template](resources/img/select_template.jpg)
 ###### 5. 从左边打开KSTM32菜单
-![kstm32_menu](./resources/img/kstm32_menu.jpg)
+![kstm32_menu](resources/img/kstm32_menu.jpg)
 ###### 6. 从下边单击需要使用的标准外设库
-![select_stdperiph](./resources/img/select_stdperiph.jpg)
+![select_stdperiph](resources/img/select_stdperiph.jpg)
 ###### 7. 开始你的工程
 所有工程文件都写到src目录中, 本插件会自动识别并把你的工程文件(.c/.h/.s)配置到Makefile和vscode语法检查配置中.
 ###### 8. 编译工程
 手动: 打开一个终端, 输入make编译. (Windows终端改UTF8的方法: chcp 65001)
-![chcp](./resources/img/chcp.jpg)
-![make](./resources/img/make.jpg)
+![chcp](resources/img/chcp.jpg)
+![make](resources/img/make.jpg)
 自动(暂时有问题, 总是会重新编译所有工程文件):
-![opt_make](./resources/img/opt_make.jpg)
+![opt_make](resources/img/opt_make.jpg)
 
 ### 6. 工程其它配置
 ###### 自定义预定义宏
-![add_define](./resources/img/add_define.jpg)
+![add_define](resources/img/add_define.jpg)
 点击这个按钮, 然后输入需要定义的宏名.
-![del_define](./resources/img/del_define.jpg)
+![del_define](resources/img/del_define.jpg)
 右击一个定义, 可以删除.
 
 ### 7. 调试
@@ -99,7 +99,7 @@ Windows如果配置了环境变量, 可以为空.
 ##### 创建模板文件
 在创建新工程时只有一个默认"default"模板.
 打开模板目录, 在"default"同级创建一个空目录.
-![new_template](./resources/img/new_template.jpg)
+![new_template](resources/img/new_template.jpg)
 在新目录中放入新的工程模板, 注意只放入通用的部分, 不要放入芯片特有的部分(如x8(md)和xC(hd)的启动.s文件).
 如果要新建一个芯片特有部分的模板(如新增对x6芯片的支持) \[注意:本功能未测试, 可能无法正常支持].
 那么需要在"default"同级目录中新建"_6"目录, 在目录中以模板相同结构放入文件.
@@ -119,4 +119,4 @@ Windows如果配置了环境变量, 可以为空.
 小猿山庄/QQ群: 367341477
 Bilibili: https://space.bilibili.com/15858903
 个人网站: http://www.scraft.top
-![group](./resources/img/group.png)
+![group](resources/img/group.png)
