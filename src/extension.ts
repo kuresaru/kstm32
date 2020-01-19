@@ -50,6 +50,8 @@ export function activate(context: vscode.ExtensionContext) {
 		sources.refresh();
 		vscode.commands.executeCommand('kstm32.configure');
 	}));
+	vscode.workspace.onDidCreateFiles(e => vscode.commands.executeCommand("kstm32.refresh"));
+	vscode.workspace.onDidDeleteFiles(e => vscode.commands.executeCommand("kstm32.refresh"));
 }
 
 // this method is called when your extension is deactivated
