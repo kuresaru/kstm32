@@ -8,6 +8,7 @@ export type Kstm32Config = {
     name?: string;
     type?: string;
     includes?: string[];
+    excludes?: string[];
     defines?: string[];
     useLib?: string[];
     // TODO 外部资源导入 排除项目资源
@@ -55,7 +56,12 @@ export function saveConfig(config: Kstm32Config) {
     }
 }
 
-export function myArrayAdd(array: any, item: any) {
+/**
+ * 数据加入元素, 保证数组元素不重复
+ * @param array 数组
+ * @param item 元素
+ */
+export function myArrayAdd(array: any[], item: any) {
     for (let i in array) {
         if (array[i] == item) {
             return;
@@ -64,7 +70,12 @@ export function myArrayAdd(array: any, item: any) {
     array.push(item);
 }
 
-export function myArrayDel(array: any, item: any) {
+/**
+ * 删除数据中指定的元素
+ * @param array 数组
+ * @param item 元素
+ */
+export function myArrayDel(array: any[], item: any) {
     if (array) {
         let index = array.indexOf(item);
         while (index != -1) {

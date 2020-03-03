@@ -11,7 +11,7 @@
 		"gcc",
 		"暮光小猿wzt"
 	],
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"preview": true,
 	"engines": {
 		"vscode": "^1.41.1"
@@ -50,7 +50,7 @@
 			},
 			{
 				"command": "kstm32.cdefs.add",
-				"title": "加入新的define",
+				"title": "Add Define",
 				"icon": {
 					"dark": "resources/svg/dark/add.svg",
 					"light": "resources/svg/light/add.svg"
@@ -59,7 +59,23 @@
 			},
 			{
 				"command": "kstm32.cdefs.remove",
-				"title": "删除"
+				"title": "移除"
+			},
+			{
+				"command": "kstm32.cinc.add",
+				"title": "Add Include",
+				"icon": {
+					"dark": "resources/svg/dark/add.svg",
+					"light": "resources/svg/light/add.svg"
+				}
+			},
+			{
+				"command": "kstm32.cinc.remove",
+				"title": "移除",
+				"icon": {
+					"dark": "resources/svg/dark/add.svg",
+					"light": "resources/svg/light/add.svg"
+				}
 			},
 			{
 				"command": "kstm32.toggleuselib",
@@ -146,12 +162,21 @@
 					"command": "kstm32.cdefs.add",
 					"when": "view == kstm32.cdefs",
 					"group": "navigation"
+				},
+				{
+					"command": "kstm32.cinc.add",
+					"when": "view == kstm32.cincludes",
+					"group": "navigation"
 				}
 			],
 			"view/item/context": [
 				{
 					"command": "kstm32.cdefs.remove",
 					"when": "view == kstm32.cdefs"
+				},
+				{
+					"command": "kstm32.cinc.remove",
+					"when": "view == kstm32.cincludes"
 				},
 				{
 					"command": "kstm32.toggleuselib",

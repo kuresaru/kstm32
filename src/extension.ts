@@ -36,6 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	stdperiph_i.registerCmd(context);
 	defines_i.registerCmd(context);
+	includes_i.registerCmd(context);
 
 	vscode.window.registerTreeDataProvider('kstm32.stdperiph', stdperiph);
 	vscode.window.registerTreeDataProvider('kstm32.cdefs', defines);
