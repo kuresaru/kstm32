@@ -3,6 +3,7 @@ import * as tpTemplate from './tpTemplate';
 import * as config from '../projectConfig';
 import * as kstm32_i from '../extension';
 import * as stdperiph_i from './stdperiph';
+import * as fs from 'fs';
 
 type SourceType = 'auto' | 'included' | 'excluded' | 'projectDir' | 'otherDir';
 
@@ -55,23 +56,43 @@ export class Provider extends tpTemplate.tpTemplate<Item> {
         if (!this.items) {
             this.reload();
         }
-        if (!element) {
-            // 根列表
-            let root = config.getWorkspaceRoot();
-            let conf = config.getConfig();
-            if (root && conf) {
-                let projDir: vscode.Uri[] = [];
-                let otherDir: vscode.Uri[] = [];
+        let root = config.getWorkspaceRoot();
+        let conf = config.getConfig();
+        if (root && conf) {
+            if (!element) {
+                // 根列表
                 return Promise.resolve([
-                    new Item('默认', undefined, undefined, projDir, 'projectDir'),
-                    new Item('其它', undefined, undefined, otherDir, 'otherDir')
+                    new Item('工程目录', undefined, undefined, true, 'projectDir'),
+                    new Item('其它路径', undefined, undefined, true, 'otherDir')
                 ]);
-            }
-        } else {
-            // 某列表的子列表
-            let content = element.content;
-            if (content) {
-                // TODO: subdir
+            } else {
+                let result: Item[] = [];
+                if (element.type == 'projectDir') {
+                    // src目录
+                    let path = `${root.fsPath}/src`;
+                    if (fs.existsSync(path) && fs.statSync(path).isDirectory()) {
+                        result.push(new Item("src", root.fsPath, undefined, true, 'auto'));
+                    }
+                } else if (element.type == 'otherDir') {
+                    // 手动加入的文件
+                } else {
+                    // 某列表的子列表
+                    let path = `${element.path}/${element.label}`;
+                    if (path) {
+                        let dir = config.lsObject(path);
+                        if (dir) {
+                            dir.forEach(src => {
+                                if (src.folder)
+                                    result.push(new Item(src.name, path, undefined, src.folder, 'auto'))
+                            });
+                            dir.forEach(src => {
+                                if (!src.folder)
+                                    result.push(new Item(src.name, path, undefined, src.folder, 'auto'))
+                            });
+                        }
+                    }
+                }
+                return Promise.resolve(result);
             }
         }
         return Promise.resolve([]);
@@ -83,7 +104,7 @@ class Item extends vscode.TreeItem {
         label: string,
         public path: string | undefined,
         public father: Item | undefined,
-        public content: vscode.Uri[] | undefined,
+        public folder: boolean,
         public type: SourceType = 'auto'
     ) {
         super(label);
@@ -91,7 +112,7 @@ class Item extends vscode.TreeItem {
     }
 
     getCollapsibleState(): vscode.TreeItemCollapsibleState {
-        if (this.type == 'projectDir' || this.type == 'otherDir' || this.content) {
+        if (this.type == 'projectDir' || this.type == 'otherDir' || this.folder) {
             return vscode.TreeItemCollapsibleState.Collapsed;
         }
         return vscode.TreeItemCollapsibleState.None;
