@@ -2,6 +2,11 @@
 
 All notable changes to the "kstm32" extension will be documented in this file
 
+## [0.1.2]
+
+- 加入手动添加Include路径的功能.
+- 加入排除自动Include路径的功能.
+
 ## [0.1.1]
 
 - 在使用编辑器创建或删除文件时，自动重新配置项目，重新生成Makefile。
