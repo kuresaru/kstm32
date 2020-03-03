@@ -57,7 +57,7 @@ function doConfigure(root: vscode.Uri) {
 
     // sources
     makefile += `\r\n\r\nC_SOURCES =`;
-    let sources: string[] = kstm32_i.sources.sources_buffer;
+    let sources: string[] = kstm32_i.sources.sources;
     sources.forEach(source => {
         makefile += ` \\\r\n${source.replace(/ /g, '\\ ')}`;
         if (source.indexOf(' ') > -1) {
@@ -90,7 +90,7 @@ function doConfigure(root: vscode.Uri) {
 
     // asm
     makefile += `\r\n\r\nASM_SOURCES =`;
-    let asmSources: string[] = kstm32_i.sources.asm_buffer;
+    let asmSources: string[] = kstm32_i.sources.asms;
     asmSources.forEach(a => {
         makefile += ` \\\r\n${a}`;
         if (a.indexOf(' ') > -1) {

@@ -78,6 +78,30 @@
 				}
 			},
 			{
+				"command": "kstm32.source.add.dir",
+				"title": "添加目录",
+				"icon": {
+					"dark": "resources/svg/dark/folder.svg",
+					"light": "resources/svg/light/folder.svg"
+				}
+			},
+			{
+				"command": "kstm32.source.add.file",
+				"title": "添加文件",
+				"icon": {
+					"dark": "resources/svg/dark/file.svg",
+					"light": "resources/svg/light/file.svg"
+				}
+			},
+			{
+				"command": "kstm32.source.remove",
+				"title": "移除",
+				"icon": {
+					"dark": "resources/svg/dark/add.svg",
+					"light": "resources/svg/light/add.svg"
+				}
+			},
+			{
 				"command": "kstm32.toggleuselib",
 				"title": "使用/去除"
 			},
@@ -167,6 +191,16 @@
 					"command": "kstm32.cinc.add",
 					"when": "view == kstm32.cincludes",
 					"group": "navigation"
+				},
+				{
+					"command": "kstm32.source.add.file",
+					"when": "view == kstm32.csources",
+					"group": "navigation"
+				},
+				{
+					"command": "kstm32.source.add.dir",
+					"when": "view == kstm32.csources",
+					"group": "navigation"
 				}
 			],
 			"view/item/context": [
@@ -177,6 +211,10 @@
 				{
 					"command": "kstm32.cinc.remove",
 					"when": "view == kstm32.cincludes"
+				},
+				{
+					"command": "kstm32.source.remove",
+					"when": "view == kstm32.csources"
 				},
 				{
 					"command": "kstm32.toggleuselib",

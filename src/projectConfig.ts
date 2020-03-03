@@ -113,47 +113,83 @@ export function getExePath(name: string): string | undefined {
 }
 
 /**
+ * 取文件扩展名
+ * @param filename 文件名
+ * @returns 扩展名的点加小写字母, 或不存在
+ */
+export function getFileExtName(filename: string): string | undefined {
+    let extIdx = filename.lastIndexOf('.');
+    if (extIdx > 0) {
+        let ext = filename.substring(extIdx);
+        return ext.toLowerCase();
+    }
+    return undefined;
+}
+
+/**
  * 递归列目录内容
  */
 export function lsRecursion(basePath: string, subPath?: string, filter: (filename: string) => boolean = (f) => true): string[] {
     let result: string[] = [];
     fs.readdirSync(`${basePath}${subPath}`).forEach(filename => {
         if (filename != '.vscode') {
+            // 取状态
             let stat = fs.statSync(basePath + '/' + subPath + '/' + filename);
-            let r = (subPath + '/' + filename).substring(1);
             if (stat.isFile() && filter(filename)) {
-                result.push(r);
+                // 是文件 保存到结果
+                if (filter(filename)) {
+                    result.push(`${subPath}/${filename}`.substring(1));
+                }
             } else if (stat.isDirectory()) {
-                lsRecursion(basePath, subPath + '/' + filename, filter).forEach(_name => {
-                    result.push(_name);
-                });
+                // 是目录 递归
+                lsRecursion(basePath, `${subPath}/${filename}`, filter).forEach(_name => result.push(_name));
             }
         }
     });
     return result;
 }
 
+export type LsResult = {
+    name: string,
+    folder: boolean
+};
+
 /**
- * 递归列目录内容 返回对象
- * 键是文件或目录名 值为目录内容
- * 如果键是文件 值是null
+ * 列目录内容 返回对象
+ * @param basePath eg: /test
+ * @param subPath eg: /dir
+ * @param filter 判断回调 true为接受文件, 回调不存在默认为true
  */
-export function lsRecursionObject(basePath: string, subPath: string, filter: (filename: string) => boolean): object | string {
-    let root = `${basePath}${subPath}`;
-    if (fs.existsSync(root)) {
-        let stat = fs.statSync(root);
+export function lsObject(path: string, filter: (filename: string) => boolean = (f) => true): LsResult[] | undefined {
+    // 判断存在
+    if (fs.existsSync(path)) {
+        // 判断是目录
+        let stat = fs.statSync(path);
         if (stat.isDirectory()) {
-            let content = {};
-            fs.readdirSync(root).forEach(filename => {
-                let obj = lsRecursionObject(root, `/${filename}`, filter);
-                if (typeof obj != 'string') {
-                    content[filename] = obj;
+            let result: LsResult[] = [];
+            // 读取目录
+            let dir = fs.readdirSync(path);
+            dir.forEach(file => {
+                // 处理文件
+                if (filter(file)) {
+                    stat = fs.statSync(`${path}/${file}`);
+                    if (stat.isDirectory()) {
+                        result.push({
+                            name: file,
+                            folder: true
+                        });
+                    } else if (stat.isFile()) {
+                        result.push({
+                            name: file,
+                            folder: false
+                        });
+                    } else if (stat.isSymbolicLink) {
+                        // TODO: Symlink
+                    }
                 }
             });
-            return content;
-        } else if (stat.isFile()) {
-            return ((!filter) || filter(subPath.substring(1))) ? null : '';
+            return result;
         }
     }
-    return '';
+    return undefined;
 }
