@@ -13,6 +13,28 @@ export class Provider extends tpTemplate.tpTemplate<Item> {
     public sources: string[] = [];
     public asms: string[] = [];
 
+    private getAllSrcInc(file: string, source: string[], srcExc: string[]): void {
+        // 变成绝对路径
+        file = config.toAbsolutePath(file);
+        // 判断属性
+        let sta = fs.statSync(file);
+        if (sta.isDirectory()) {
+            // 列出目录并递归
+            let dir = fs.readdirSync(file);
+            dir.forEach(d => this.getAllSrcInc(path_i.join(file, d), source, srcExc));
+        } else if (sta.isFile()) {
+            // 判断是否被排除
+            for (let i = 0; i < srcExc.length; i++) {
+                let exc = config.toAbsolutePath(srcExc[i]);
+                if (exc == file) {
+                    return;
+                }
+            }
+            // 未排除
+            config.myArrayAdd(source, file.replace(/\\/g, '/'));
+        }
+    }
+
     reload(): void {
         const srcExts: string[] = ['.c', '.s'];
         let root = config.getWorkspaceRoot();
@@ -38,8 +60,7 @@ export class Provider extends tpTemplate.tpTemplate<Item> {
                 config.myArrayDel(source, exc);
             });
             // 手动添加的文件
-            srcInc.forEach(src => config.myArrayAdd(source, src));
-
+            srcInc.forEach(src => this.getAllSrcInc(src, source, srcExc));
             // 整理给Makefile
             this.sources = [];
             this.asms = [];
@@ -100,7 +121,7 @@ export class Provider extends tpTemplate.tpTemplate<Item> {
                                 let isDir = src.folder;
                                 if (isDir || (srcExts.indexOf(config.getFileExtName(src.name)) != -1)) {
                                     let srcPath = `${path}/${src.name}`;
-                                    let relPath = config.toRelativePath(srcPath).replace(/\\/g, '/');
+                                    let relPath = config.tryToRelativePath(srcPath).replace(/\\/g, '/');
                                     let srcType: SourceType = 'auto';
                                     if (srcExc.indexOf(relPath) != -1)
                                         srcType = 'excluded';
@@ -164,14 +185,12 @@ function addSrc(folder: boolean) {
         }).then(uris => {
             uris.forEach(uri => {
                 if (uri.scheme == 'file') {
-                    let file: string = config.toRelativePath(uri.fsPath).replace(/\\/g, '/');
-                    // 保证不是本身
-                    if (file.length > 0) {
-                        // 路径有效
-                        config.myArrayAdd(conf.sourceIncludes, file);
-                    } else {
-                        vscode.window.showWarningMessage("不能添加工程目录本身.");
+                    let file: string = config.tryToRelativePath(uri.fsPath).replace(/\\/g, '/');
+                    if (path_i.isAbsolute(file)) {
+                        vscode.window.showWarningMessage(`暂不支持工程目录外的导入: ${file}`);
+                        return;
                     }
+                    config.myArrayAdd(conf.sourceIncludes, file);
                 }
             });
             config.saveConfig(conf);
@@ -187,7 +206,7 @@ export function registerCmd(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('kstm32.source.add.dir', () => addSrc(true)));
     context.subscriptions.push(vscode.commands.registerCommand('kstm32.source.remove', src => {
         if (src instanceof Item && src.path) {
-            let path: string = config.toRelativePath(src.path).replace(/\\/g, '/');
+            let path: string = config.tryToRelativePath(src.path).replace(/\\/g, '/');
             let conf = config.getConfig();
             let root = config.getWorkspaceRoot();
             if (conf && root) {

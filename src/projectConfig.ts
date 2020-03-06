@@ -199,13 +199,25 @@ export function lsObject(path: string, filter: (filename: string) => boolean = (
  * 把绝对路径转换成相对当前打开目录的相对路径
  * @param src 绝对路径
  */
-export function toRelativePath(src: string): string {
+export function tryToRelativePath(src: string): string {
     let root = getWorkspaceRoot();
     if (root) {
         let rel = path_i.relative(root.fsPath, src);
         if (!rel.startsWith('..')) {
             return rel;
         }
+    }
+    return src;
+}
+
+/**
+ * 把相对路径转换成绝对路径
+ * @param src 相对路径
+ */
+export function toAbsolutePath(src: string): string {
+    let root = getWorkspaceRoot();
+    if (root && !path_i.isAbsolute(src)) {
+        return path_i.join(root.fsPath, src);
     }
     return src;
 }
