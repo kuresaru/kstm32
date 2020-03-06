@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as os from 'os';
+import * as path_i from 'path';
 
 const CONFIG_FILENAME = '/kstm32.json';
 
@@ -192,4 +193,19 @@ export function lsObject(path: string, filter: (filename: string) => boolean = (
         }
     }
     return undefined;
+}
+
+/**
+ * 把绝对路径转换成相对当前打开目录的相对路径
+ * @param src 绝对路径
+ */
+export function toRelativePath(src: string): string {
+    let root = getWorkspaceRoot();
+    if (root) {
+        let rel = path_i.relative(root.fsPath, src);
+        if (!rel.startsWith('..')) {
+            return rel;
+        }
+    }
+    return src;
 }

@@ -4,6 +4,7 @@ import * as config from '../projectConfig';
 import * as kstm32_i from '../extension';
 import * as stdperiph_i from './stdperiph';
 import * as fs from 'fs';
+import * as path_i from 'path';
 
 type SourceType = 'auto' | 'included' | 'excluded' | 'projectDir' | 'otherDir';
 
@@ -66,28 +67,47 @@ export class Provider extends tpTemplate.tpTemplate<Item> {
                     new Item('其它路径', undefined, undefined, true, 'otherDir')
                 ]);
             } else {
+                const srcExts: string[] = ['.c', '.s'];
                 let result: Item[] = [];
+                let srcExc: string[] = conf.sourceExcludes || [];
+                let srcInc: string[] = conf.sourceIncludes || [];
                 if (element.type == 'projectDir') {
                     // src目录
                     let path = `${root.fsPath}/src`;
                     if (fs.existsSync(path) && fs.statSync(path).isDirectory()) {
-                        result.push(new Item("src", root.fsPath, undefined, true, 'auto'));
+                        result.push(new Item("src", path, undefined, true, 'auto'));
                     }
+                    // 自定义
+                    srcInc.forEach(inc => {
+                        path = `${root.fsPath}/${inc}`;
+                        if ((!path_i.isAbsolute(inc)) && (!inc.startsWith('..')) && fs.existsSync(path)) {
+                            let isDir = fs.statSync(path).isDirectory();
+                            let baseName = path_i.basename(inc);
+                            if (isDir || (srcExts.indexOf(config.getFileExtName(baseName)) != -1)) {
+                                result.push(new Item(baseName, path, undefined, isDir, 'included'));
+                            }
+                        }
+                    });
                 } else if (element.type == 'otherDir') {
                     // 手动加入的文件
                 } else {
                     // 某列表的子列表
-                    let path = `${element.path}/${element.label}`;
+                    let path = element.path;
                     if (path) {
                         let dir = config.lsObject(path);
                         if (dir) {
                             dir.forEach(src => {
-                                if (src.folder)
-                                    result.push(new Item(src.name, path, undefined, src.folder, 'auto'))
-                            });
-                            dir.forEach(src => {
-                                if (!src.folder)
-                                    result.push(new Item(src.name, path, undefined, src.folder, 'auto'))
+                                let isDir = src.folder;
+                                if (isDir || (srcExts.indexOf(config.getFileExtName(src.name)) != -1)) {
+                                    let srcPath = `${path}/${src.name}`;
+                                    let relPath = config.toRelativePath(srcPath).replace(/\\/g, '/');
+                                    let srcType: SourceType = 'auto';
+                                    if (srcExc.indexOf(relPath) != -1)
+                                        srcType = 'excluded';
+                                    else if (srcInc.indexOf(relPath) != -1)
+                                        srcType = 'included';
+                                    result.push(new Item(src.name, srcPath, element, src.folder, srcType));
+                                }
                             });
                         }
                     }
@@ -101,11 +121,11 @@ export class Provider extends tpTemplate.tpTemplate<Item> {
 
 class Item extends vscode.TreeItem {
     constructor(
-        label: string,
-        public path: string | undefined,
-        public father: Item | undefined,
-        public folder: boolean,
-        public type: SourceType = 'auto'
+        label: string, // 目录或文件的名字
+        public path: string | undefined,    // 它自己的绝对路径
+        public father: Item | undefined,    // 父元素
+        public folder: boolean,             // 是否是目录
+        public type: SourceType = 'auto'    // 类型
     ) {
         super(label);
         this.collapsibleState = this.getCollapsibleState();
@@ -116,6 +136,16 @@ class Item extends vscode.TreeItem {
             return vscode.TreeItemCollapsibleState.Collapsed;
         }
         return vscode.TreeItemCollapsibleState.None;
+    }
+
+    get description(): string | false {
+        switch (this.type) {
+            case 'included':
+                return '[手动]';
+            case 'excluded':
+                return '[已排除]'
+        }
+        return false;
     }
 }
 
@@ -134,16 +164,10 @@ function addSrc(folder: boolean) {
         }).then(uris => {
             uris.forEach(uri => {
                 if (uri.scheme == 'file') {
-                    let file: string = uri.fsPath;
-                    // 如果是工程目录里的, 转换成相对路径
-                    if (file.startsWith(root.fsPath)) {
-                        file = file.substring(root.fsPath.length + 1);
-                    }
-                    file = file.replace(/\\/g, '/');
+                    let file: string = config.toRelativePath(uri.fsPath).replace(/\\/g, '/');
                     // 保证不是本身
                     if (file.length > 0) {
                         // 路径有效
-                        // console.log(file);
                         config.myArrayAdd(conf.sourceIncludes, file);
                     } else {
                         vscode.window.showWarningMessage("不能添加工程目录本身.");
@@ -162,21 +186,22 @@ export function registerCmd(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('kstm32.source.add.file', () => addSrc(false)));
     context.subscriptions.push(vscode.commands.registerCommand('kstm32.source.add.dir', () => addSrc(true)));
     context.subscriptions.push(vscode.commands.registerCommand('kstm32.source.remove', src => {
-        if (src instanceof vscode.TreeItem && src.label) {
-            let file: string = src.label;
+        if (src instanceof Item && src.path) {
+            let path: string = config.toRelativePath(src.path).replace(/\\/g, '/');
             let conf = config.getConfig();
-            if (conf) {
+            let root = config.getWorkspaceRoot();
+            if (conf && root) {
                 let inc = conf.sourceIncludes || [];
                 let exc = conf.sourceExcludes || [];
-                if (exc.indexOf(file) != -1) {
-                    config.myArrayDel(conf.sourceExcludes, file);
-                } else if (inc.indexOf(file) != -1) {
-                    config.myArrayDel(conf.sourceIncludes, file);
+                if (exc.indexOf(path) != -1) {
+                    config.myArrayDel(conf.sourceExcludes, path);
+                } else if (inc.indexOf(path) != -1) {
+                    config.myArrayDel(conf.sourceIncludes, path);
                 } else {
                     if (!conf.sourceExcludes) {
                         conf.sourceExcludes = [];
                     }
-                    config.myArrayAdd(conf.sourceExcludes, file);
+                    config.myArrayAdd(conf.sourceExcludes, path);
                 }
                 config.saveConfig(conf);
                 vscode.commands.executeCommand('kstm32.refresh');
