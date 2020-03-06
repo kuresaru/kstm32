@@ -2,6 +2,13 @@
 
 All notable changes to the "kstm32" extension will be documented in this file
 
+
+## [0.1.3]
+
+- 加入手动添加Source的功能.
+- 加入排除自动扫描到的Source功能.
+
+
 ## [0.1.2]
 
 - 加入手动添加Include路径的功能.
