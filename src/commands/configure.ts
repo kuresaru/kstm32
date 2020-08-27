@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import * as config from '../projectConfig';
+import * as config from '../config/projectConfig';
 import * as stdperiph from '../treeProviders/stdperiph';
 import * as path from 'path';
 import * as kstm32_i from '../extension';
-import * as openocd_i from '../commands/openocd';
+import * as openocd_i from '../config/openocd';
 import * as verUtils from '../templateVer/verUtils';
 
 export function register(context: vscode.ExtensionContext) {

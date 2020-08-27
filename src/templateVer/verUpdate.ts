@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as vscode from 'vscode';
-import * as config_i from '../projectConfig';
+import * as config_i from '../config/projectConfig';
 
 function update0_1(projectUri: vscode.Uri): Promise<void> {
     return new Promise<void>((resolve, reject) => {

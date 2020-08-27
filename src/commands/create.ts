@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import * as config from '../projectConfig';
+import * as config from '../config/projectConfig';
 import * as verUtils from '../templateVer/verUtils';
 
 export function register(context: vscode.ExtensionContext) {

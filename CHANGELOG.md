@@ -3,6 +3,11 @@
 All notable changes to the "kstm32" extension will be documented in this file
 
 
+## [0.2.4]
+
+- 加入自动配置启动Cortex-Debug:OpenOCD的功能.
+
+
 ## [0.1.3]
 
 - 加入手动添加Source的功能.

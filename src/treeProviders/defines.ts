@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as tpTemplate from './tpTemplate';
-import * as config from '../projectConfig';
+import * as config from '../config/projectConfig';
 
 type DefineType = 'auto' | 'manual';
 

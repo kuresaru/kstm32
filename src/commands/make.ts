@@ -1,8 +1,9 @@
 import * as vscode from 'vscode';
-import * as config from '../projectConfig';
+import * as config from '../config/projectConfig';
 
 export const MakeTaskType = 'KSTM32.make';
 
+// TODO 改成TaskProvider
 export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('kstm32.make', function () {
         let kstm32cfg: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('kstm32');

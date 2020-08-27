@@ -11,7 +11,7 @@ export abstract class tpTemplate<T> implements vscode.TreeDataProvider<T> {
 
     refresh(): void {
         this.reload();
-        this._onDidChangeTreeData.fire();
+        this._onDidChangeTreeData.fire(undefined);
     }
 
     getTreeItem(element: T): T {

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import * as config from '../projectConfig';
+import * as config from './projectConfig';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -60,35 +60,4 @@ source [find ${ocdScripts}/target/${target}.cfg]`;
             reject("未知OpenOCD路径");
         }
     });
-}
-
-export function register(context: vscode.ExtensionContext) {
-    context.subscriptions.push(vscode.commands.registerCommand('kstm32.ocd', function () {
-        let conf: config.Kstm32Config | undefined = config.getConfig();
-        if (!(conf && conf.type)) {
-            vscode.window.showErrorMessage('无法读取项目类型');
-            return;
-        }
-
-        let args: string[] = ['-f', 'interface/stlink-v2.cfg', '-f'];
-        if (conf.type.startsWith('STM32F1')) {
-            args.push('target/stm32f1x.cfg');
-        } else if (conf.type.startsWith('STM32F4')) {
-            args.push('target/stm32f4x.cfg');
-        } else {
-            vscode.window.showErrorMessage('未知项目类型');
-            return;
-        }
-
-        let ocd: string | undefined = getOcdPath();
-        if (ocd) {
-            let win = config.isWindows();
-            let cmd = `${ocd}/bin/openocd${win ? '.exe' : ''}`;
-
-            vscode.commands.executeCommand('kstm32.refresh').then(() => {
-                vscode.tasks.executeTask(new vscode.Task({ type: "shell" }, vscode.TaskScope.Workspace, 'OpenOCD', 'shell',
-                    new vscode.ShellExecution(cmd, args, { cwd: `${ocd}/scripts` })));
-            });
-        }
-    }));
 }

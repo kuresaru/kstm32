@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import * as config from '../projectConfig';
+import * as config from '../config/projectConfig';
 import * as verUpdate from './verUpdate';
 import { promises, resolve } from 'dns';
 
