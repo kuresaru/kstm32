@@ -24,8 +24,8 @@ export function register(context: vscode.ExtensionContext) {
                             doConfigure(root);
                         } else if (opt == opt_update) {
                             verUtils.doUpdate(root)
-                            .then(() => vscode.window.showInformationMessage(`升级完成`))
-                            .catch(err => vscode.window.showErrorMessage(`升级出错: ${err}`));
+                                .then(() => vscode.window.showInformationMessage(`升级完成`))
+                                .catch(err => vscode.window.showErrorMessage(`升级出错: ${err}`));
                         }
                     }));
         }
@@ -112,6 +112,5 @@ function doConfigure(root: vscode.Uri) {
         }
     });
 
-    openocd_i.genCfgFile(root).catch(err => vscode.window.showErrorMessage(err));
 }
 

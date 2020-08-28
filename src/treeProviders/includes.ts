@@ -30,11 +30,13 @@ export class Provider extends tpTemplate.tpTemplate<Item> {
         if (conf) {
             // StdPeriph
             let type: string = conf.type || '';
-            let libPath: stdperiph_i.LibPath = stdperiph_i.getLibPath();
-            if (type.startsWith('STM32F103')) {
-                config.myArrayAdd(inc_auto, `${(libPath || {}).root}/CMSIS/CM3/CoreSupport`.replace(/\\/g, '/'))
-            } else if (type.startsWith('STM32F407')) {
-                config.myArrayAdd(inc_auto, `${(libPath || {}).root}/CMSIS/Include`.replace(/\\/g, '/'))
+            let libPath: stdperiph_i.LibPath | undefined = stdperiph_i.getLibPath();
+            if (libPath) {
+                if (type.startsWith('STM32F103')) {
+                    config.myArrayAdd(inc_auto, `${libPath.root}/CMSIS/CM3/CoreSupport`.replace(/\\/g, '/'))
+                } else if (type.startsWith('STM32F407')) {
+                    config.myArrayAdd(inc_auto, `${libPath.root}/CMSIS/Include`.replace(/\\/g, '/'))
+                }
             }
             // Manual Include
             let mInclude: string[] = conf.includes || [];

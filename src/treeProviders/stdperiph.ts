@@ -27,7 +27,7 @@ export class Provider extends tpTemplate<Item> {
                 }
             }
             if (showerr) {
-                vscode.window.showErrorMessage('无法找到项目对应的标准库');
+                vscode.window.showWarningMessage('无法找到项目对应的标准库');
             }
         } else {
             if (showerr) {

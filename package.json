@@ -125,9 +125,9 @@
 					"type": "string",
 					"description": "make的路径(一般为Windows配置)"
 				},
-				"kstm32.openocd": {
+				"kstm32.ocdScripts": {
 					"type": "string",
-					"description": "OpenOCD的根路径"
+					"description": "OpenOCD默认脚本库路径"
 				},
 				"kstm32.libs.STM32F10xStdPeriph": {
 					"type": "string",
