@@ -57,7 +57,7 @@ export class Provider extends tpTemplate.tpTemplate<Item> {
         inc_man.forEach(inc => {
             this.includes_buffer.push(inc);
             result.push(new Item(inc, 'included'));
-        })
+        });
         inc_auto.forEach(inc => {
             this.includes_buffer.push(inc);
             result.push(new Item(inc, 'auto'));

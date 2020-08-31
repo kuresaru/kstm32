@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 
 import DebugResolver from './debug/DebugResolver';
 
+import * as build from './commands/build';
 import * as create from './commands/create';
 import * as configure from './commands/configure';
 import * as make from './commands/make';
@@ -19,6 +20,8 @@ export let stdperiph: stdperiph_i.Provider = new stdperiph_i.Provider();
 export let includes: includes_i.Provider = new includes_i.Provider();
 export let sources: sources_i.Provider = new sources_i.Provider();
 
+let buildTaskProvider: vscode.Disposable | undefined;
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -27,6 +30,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "kstm32" is now active!');
 
+	build.register(context);
 	create.register(context);
 	configure.register(context);
 	make.register(context);
@@ -41,7 +45,8 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.window.registerTreeDataProvider('kstm32.cincludes', includes);
 	vscode.window.registerTreeDataProvider('kstm32.csources', sources);
 	vscode.window.registerTreeDataProvider('kstm32.options', new options_i.Provider());
-	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("kstm32", new DebugResolver()))
+	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("kstm32", new DebugResolver()));
+	buildTaskProvider = vscode.tasks.registerTaskProvider(build.BuildTaskProvider.type, new build.BuildTaskProvider());
 
 	context.subscriptions.push(vscode.commands.registerCommand('kstm32.refresh', () => {
 		stdperiph.refresh();
@@ -55,4 +60,6 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() { }
+export function deactivate() {
+	buildTaskProvider?.dispose();
+}

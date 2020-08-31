@@ -5,7 +5,6 @@ import { getConfig } from "../config/projectConfig";
 export default class DebugProvider implements DebugConfigurationProvider {
 
     resolveDebugConfiguration?(folder: WorkspaceFolder | undefined, debugConfiguration: DebugConfiguration): ProviderResult<DebugConfiguration> {
-        console.log(debugConfiguration);
         if (debugConfiguration.type == 'kstm32') {
             getConfigFiles().then(configFiles => {
                 debug.startDebugging(folder, {
