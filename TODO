@@ -5,3 +5,6 @@
 支持f0 f2系列
 自动下载并配置库文件
 不自动递归Include
+工作目录里没有项目配置文件时好像不会阻止继续运行导致错误结果
+clean和run的command
+build的make路径

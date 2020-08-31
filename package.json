@@ -32,24 +32,49 @@
     ],
     "main": "./out/extension.js",
     "contributes": {
-        "commands": [{
+        "commands": [
+            {
                 "command": "kstm32.configure",
                 "title": "自动配置项目环境",
                 "category": "KSTM32.configure"
             },
             {
                 "command": "kstm32.create",
-                "title": "创建新的工程",
+                "title": "KSTM32: 创建新的工程",
                 "category": "KSTM32.create"
             },
             {
+                "command": "kstm32.clean",
+                "title": "KSTM32: 清理",
+                "icon": {
+                    "dark": "resources/svg/dark/clean.svg",
+                    "light": "resources/svg/light/clean.svg"
+                }
+            },
+            {
                 "command": "kstm32.refresh",
-                "title": "刷新项目环境",
+                "title": "KSTM32: 刷新项目环境",
                 "icon": {
                     "dark": "resources/svg/dark/refresh.svg",
                     "light": "resources/svg/light/refresh.svg"
                 },
                 "category": "KSTM32.refresh"
+            },
+            {
+                "command": "kstm32.build",
+                "title": "KSTM32: 生成",
+                "icon": {
+                    "dark": "resources/svg/dark/compile.svg",
+                    "light": "resources/svg/light/compile.svg"
+                }
+            },
+            {
+                "command": "kstm32.run",
+                "title": "KSTM32: 运行调试",
+                "icon": {
+                    "dark": "resources/svg/dark/flash.svg",
+                    "light": "resources/svg/light/flash.svg"
+                }
             },
             {
                 "command": "kstm32.cdefs.add",
@@ -112,57 +137,50 @@
                 "command": "kstm32.make",
                 "title": "编译(暂时有问题）",
                 "category": "KSTM32.make"
-            },
-            {
-                "command": "kstm32.build",
-                "title": "KSTM32: 生成"
-            },
-            {
-                "command": "kstm32.clean",
-                "title": "KSTM32: 清理"
             }
         ],
-        "configuration": [{
-            "title": "暮光小猿STM32小工具",
-            "properties": {
-                "kstm32.gccHome": {
-                    "type": "string",
-                    "description": "gcc根路径"
-                },
-                "kstm32.make": {
-                    "type": "string",
-                    "description": "make的路径(一般为Windows配置)"
-                },
-                "kstm32.ocdScripts": {
-                    "type": "string",
-                    "description": "OpenOCD默认脚本库路径"
-                },
-                "kstm32.libs.STM32F10xStdPeriph": {
-                    "type": "string",
-                    "description": "STM32F10x 标准外设库路径 (包含CMSIS和STM32F10x_StdPeriph_Driver目录)"
-                },
-                "kstm32.libs.STM32F4xxStdPeriph": {
-                    "type": "string",
-                    "description": "STM32F4xx 标准外设库路径 (包含CMSIS和STM32F4xx_StdPeriph_Driver目录)"
-                },
-                "kstm32.libs.templates": {
-                    "type": "string",
-                    "description": "自定义工程模板"
+        "configuration": [
+            {
+                "title": "暮光小猿STM32小工具",
+                "properties": {
+                    "kstm32.gccHome": {
+                        "type": "string",
+                        "description": "gcc根路径"
+                    },
+                    "kstm32.make": {
+                        "type": "string",
+                        "description": "make的路径(一般为Windows配置)"
+                    },
+                    "kstm32.ocdScripts": {
+                        "type": "string",
+                        "description": "OpenOCD默认脚本库路径"
+                    },
+                    "kstm32.libs.STM32F10xStdPeriph": {
+                        "type": "string",
+                        "description": "STM32F10x 标准外设库路径 (包含CMSIS和STM32F10x_StdPeriph_Driver目录)"
+                    },
+                    "kstm32.libs.STM32F4xxStdPeriph": {
+                        "type": "string",
+                        "description": "STM32F4xx 标准外设库路径 (包含CMSIS和STM32F4xx_StdPeriph_Driver目录)"
+                    },
+                    "kstm32.libs.templates": {
+                        "type": "string",
+                        "description": "自定义工程模板"
+                    }
                 }
             }
-        }],
+        ],
         "viewsContainers": {
-            "activitybar": [{
-                "id": "kstm32",
-                "title": "暮光小猿STM32小工具",
-                "icon": "resources/svg/stm32.svg"
-            }]
+            "activitybar": [
+                {
+                    "id": "kstm32",
+                    "title": "暮光小猿STM32小工具",
+                    "icon": "resources/svg/stm32.svg"
+                }
+            ]
         },
         "views": {
-            "kstm32": [{
-                    "id": "kstm32.options",
-                    "name": "Options"
-                },
+            "kstm32": [
                 {
                     "id": "kstm32.csources",
                     "name": "C Sources"
@@ -182,12 +200,30 @@
             ]
         },
         "menus": {
-            "editor/title": [{
-                "when": "true",
-                "command": "kstm32.refresh",
-                "group": "navigation"
-            }],
-            "view/title": [{
+            "editor/title": [
+                {
+                    "when": "true",
+                    "command": "kstm32.clean",
+                    "group": "navigation"
+                },
+                {
+                    "when": "true",
+                    "command": "kstm32.refresh",
+                    "group": "navigation"
+                },
+                {
+                    "when": "true",
+                    "command": "kstm32.build",
+                    "group": "navigation"
+                },
+                {
+                    "when": "true",
+                    "command": "kstm32.run",
+                    "group": "navigation"
+                }
+            ],
+            "view/title": [
+                {
                     "command": "kstm32.cdefs.add",
                     "when": "view == kstm32.cdefs",
                     "group": "navigation"
@@ -208,7 +244,8 @@
                     "group": "navigation"
                 }
             ],
-            "view/item/context": [{
+            "view/item/context": [
+                {
                     "command": "kstm32.cdefs.remove",
                     "when": "view == kstm32.cdefs"
                 },
@@ -226,24 +263,30 @@
                 }
             ]
         },
-        "debuggers": [{
-            "type": "kstm32",
-            "label": "KSTM32 Debug Autogen",
-            "initialConfigurations": [{
-                "name": "KSTM32 Debug Autogen",
+        "debuggers": [
+            {
                 "type": "kstm32",
-                "request": "launch"
-            }],
-            "configurationSnippets": [{
-                "label": "KSTM32: Launch Cortex-Debug",
-                "description": "Run Cortex-Debug use OpenOCD with KSTM32 auto generated configuration file.",
-                "body": {
-                    "name": "KSTM32 Debug Autogen",
-                    "type": "kstm32",
-                    "request": "launch"
-                }
-            }]
-        }]
+                "label": "KSTM32 Debug Autogen",
+                "initialConfigurations": [
+                    {
+                        "name": "KSTM32 Debug Autogen",
+                        "type": "kstm32",
+                        "request": "launch"
+                    }
+                ],
+                "configurationSnippets": [
+                    {
+                        "label": "KSTM32: Launch Cortex-Debug",
+                        "description": "Run Cortex-Debug use OpenOCD with KSTM32 auto generated configuration file.",
+                        "body": {
+                            "name": "KSTM32 Debug Autogen",
+                            "type": "kstm32",
+                            "request": "launch"
+                        }
+                    }
+                ]
+            }
+        ]
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",

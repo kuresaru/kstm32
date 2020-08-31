@@ -7,8 +7,9 @@ All notable changes to the "kstm32" extension will be documented in this file
 
 - 加入自动配置启动Cortex-Debug:OpenOCD的功能.
 - 移除运行OpenOCD的功能,改为调用Cortex-Debug插件.
-- 不再自动生成openocd配置文件
-- 不强制配置标准库路径
+- 不再自动生成openocd配置文件.
+- 不强制配置标准库路径.
+- 删除侧栏中的选项栏, 改到编辑器右上角图标按钮.
 
 
 ## [0.1.3]

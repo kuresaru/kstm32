@@ -7,13 +7,11 @@ import DebugResolver from './debug/DebugResolver';
 import * as build from './commands/build';
 import * as create from './commands/create';
 import * as configure from './commands/configure';
-import * as make from './commands/make';
 
 import * as stdperiph_i from './treeProviders/stdperiph';
 import * as defines_i from './treeProviders/defines';
 import * as includes_i from './treeProviders/includes';
 import * as sources_i from './treeProviders/sources';
-import * as options_i from './treeProviders/options';
 
 export let defines: defines_i.Provider = new defines_i.Provider();
 export let stdperiph: stdperiph_i.Provider = new stdperiph_i.Provider();
@@ -33,7 +31,6 @@ export function activate(context: vscode.ExtensionContext) {
 	build.register(context);
 	create.register(context);
 	configure.register(context);
-	make.register(context);
 
 	stdperiph_i.registerCmd(context);
 	defines_i.registerCmd(context);
@@ -44,7 +41,6 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.window.registerTreeDataProvider('kstm32.cdefs', defines);
 	vscode.window.registerTreeDataProvider('kstm32.cincludes', includes);
 	vscode.window.registerTreeDataProvider('kstm32.csources', sources);
-	vscode.window.registerTreeDataProvider('kstm32.options', new options_i.Provider());
 	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("kstm32", new DebugResolver()));
 	buildTaskProvider = vscode.tasks.registerTaskProvider(build.BuildTaskProvider.type, new build.BuildTaskProvider());
 
