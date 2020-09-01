@@ -132,11 +132,6 @@
             {
                 "command": "kstm32.toggleuselib",
                 "title": "使用/去除"
-            },
-            {
-                "command": "kstm32.make",
-                "title": "编译(暂时有问题）",
-                "category": "KSTM32.make"
             }
         ],
         "configuration": [
