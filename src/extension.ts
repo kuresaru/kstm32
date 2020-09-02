@@ -7,6 +7,7 @@ import DebugResolver from './debug/DebugResolver';
 import * as build from './commands/build';
 import * as create from './commands/create';
 import * as configure from './commands/configure';
+import * as run from './commands/run';
 
 import * as stdperiph_i from './treeProviders/stdperiph';
 import * as defines_i from './treeProviders/defines';
@@ -31,6 +32,7 @@ export function activate(context: vscode.ExtensionContext) {
 	build.register(context);
 	create.register(context);
 	configure.register(context);
+	run.register(context);
 
 	stdperiph_i.registerCmd(context);
 	defines_i.registerCmd(context);

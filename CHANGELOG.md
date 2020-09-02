@@ -2,6 +2,10 @@
 
 All notable changes to the "kstm32" extension will be documented in this file
 
+## [0.2.5]
+
+- 修复右上角启动按钮不能启动的问题
+
 
 ## [0.2.4]
 
