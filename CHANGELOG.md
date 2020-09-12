@@ -2,6 +2,11 @@
 
 All notable changes to the "kstm32" extension will be documented in this file
 
+## [0.2.6]
+
+- 修复自动配置的启动中参数路径错误导致找不到文件的错误
+
+
 ## [0.2.5]
 
 - 修复右上角启动按钮不能启动的问题

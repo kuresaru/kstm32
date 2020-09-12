@@ -12,7 +12,7 @@
         "gcc",
         "暮光小猿wzt"
     ],
-    "version": "0.2.5",
+    "version": "0.2.6",
     "preview": true,
     "engines": {
         "vscode": "^1.41.1"

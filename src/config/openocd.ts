@@ -25,7 +25,7 @@ export function getConfigFiles(): Promise<string[]> {
             // 调试器类型
             let _debugger: string = conf.debugger || 'stlink';
             resolve([
-                `${ocdScripts}/interfaces/${_debugger}.cfg`,
+                `${ocdScripts}/interface/${_debugger}.cfg`,
                 `${ocdScripts}/target/${target}.cfg`
             ]);
         } else {
